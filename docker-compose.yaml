@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  api:
+    image: udaconnect-api
+    build:
+      context: modules/api
+    ports:
+      - "30001:5000"
+  frontend:
+    image: udaconnect-app
+    build:
+      context: modules/frontend
+    ports:
+      - "30000:3000"
