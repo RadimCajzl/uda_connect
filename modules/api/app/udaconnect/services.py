@@ -158,4 +158,4 @@ class PersonService:
     def retrieve_all() -> List[Person]:
         with logged_timer(f"Retrieving all people data"):
             all_people_data = db.session.query(Person).all()
-        all_people_data
+        return all_people_data

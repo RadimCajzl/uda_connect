@@ -3,9 +3,9 @@
 # Recommendations for app developers
 ## Backend
 
-- Python3.7 is going to be deprecated extremely soon, see https://endoflife.date/python.
+- Python 3.7 is going to be deprecated extremely soon, see https://endoflife.date/python.
   This is not part of the exercise, but **as an architect, I would not let any
-  Python3.7-based application on infrastructure I am responsible for.**
+  Python 3.7-based application run on infrastructure I am responsible for.**
 
 - The main Python dependencies are extremely outdated. They already contain security
   vulnerabilities, as indicated by pip-audit:
@@ -25,6 +25,8 @@
 
   Again, this is not part of the exercise, **but as an architect, I would not let such
   application run on any infrastructure I am responsible for before this is fixed.**
+  
+  Due to lack of time, I have not taken any further steps here.
 
 - The default requirements.txt-based Python venv management is a bad idea. With that,
   you either don't get reproducible builds (e. g. by pinning first-level dependencies
@@ -37,9 +39,24 @@
   Recommendation is to use more advanced tools Python community provides, e. g.
   python-poetry, pipenv or something else.
 
-## Security vulnerabilities in Frontend
+- The backend code contains no tests. Again, as an architect, I would not let any code
+  without automated testing run on infrastructure I am responsible for, but due to lack
+  of time I have not created a comprehensive test suite.
 
-Many libraries are outdated and contain security vulnerabilities, as can be seen from
-docker build step. This is not part of the exercise and I am not a javascript expert,
-but I would not let this run on any infrastructure I am responsible for.
+## Frontend
+
+ - Many libraries are outdated and contain security vulnerabilities, as can be seen from
+   docker build step. This is not part of the exercise and I am not a javascript expert,
+   but I would not let this run on any infrastructure I am responsible for.
+
+ - Frontend breaks with React-error if database is empty.
+
+
+# Remarks on original architecture
+
+As can be seen in (TODO: reference to original architecture diagram), the original
+implementation contains one single point of failure - the PostgreSQL DB instance.
+While being extremely useful (also together with the PostGIS extension), PSQL 
+is by design not scalable and when the usage hits certain threshold, it just won't
+be scalable using good-practice solutions.
 

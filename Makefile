@@ -45,8 +45,11 @@ kind-udaconnect: docker-build kind-udaconnect-clean
 		kubectl apply --wait=true -f -
 
 	## Populate database with initial data:
-	sleep 2
+	# wait for PSQL to be ready:
+	kubectl wait deployment postgres --for condition=Available=True
+
 	sh scripts/run_db_command.sh $$(kubectl get pods --selector=app=postgres --output=name)
+
 
 make kind-udaconnect-clean:
 	kubectl delete --ignore-not-found=true --wait=true \
@@ -55,6 +58,8 @@ make kind-udaconnect-clean:
 		service/postgres \
 		deployment.apps/udaconnect-api  \
 		deployment.apps/udaconnect-app \
-		deployment.apps/postgres 
+		deployment.apps/postgres
+	
+	docker exec kind-worker rm -rf '/mnt/data/*'
 
 	

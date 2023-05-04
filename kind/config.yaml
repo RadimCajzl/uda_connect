@@ -9,12 +9,19 @@ nodes:
 - role: control-plane
   # UdaConnect:
   extraPortMappings:
+  ## Frontend:
+  - containerPort: 30000
+    hostPort: 30000
+    listenAddress: "0.0.0.0"
+    protocol: tcp
+  ## Backend:
   - containerPort: 30001
     hostPort: 30001
     listenAddress: "0.0.0.0"
     protocol: tcp
-  - containerPort: 30000
-    hostPort: 30000
+  ## Database:
+  - containerPort: 30002
+    hostPort: 30002
     listenAddress: "0.0.0.0"
     protocol: tcp
 - role: worker
