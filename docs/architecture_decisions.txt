@@ -1,0 +1,45 @@
+# Architecture decisions
+
+# Recommendations for app developers
+## Backend
+
+- Python3.7 is going to be deprecated extremely soon, see https://endoflife.date/python.
+  This is not part of the exercise, but **as an architect, I would not let any
+  Python3.7-based application on infrastructure I am responsible for.**
+
+- The main Python dependencies are extremely outdated. They already contain security
+  vulnerabilities, as indicated by pip-audit:
+    Name        Version ID                  Fix Versions
+    ----------- ------- ------------------- ------------
+  ! flask       1.1.1   GHSA-m2qf-hxjv-5gpq 2.2.5,2.3.2     https://github.com/advisories/GHSA-m2qf-hxjv-5gpq
+  ! flask-cors  3.0.8   PYSEC-2020-43       3.0.9           https://vulners.com/osv/OSV:PYSEC-2020-43
+    flask-restx 0.2.0   PYSEC-2021-325      0.5.1
+    jinja2      2.11.2  PYSEC-2021-66       2.11.3
+    setuptools  59.6.0  PYSEC-2022-43012    65.5.1
+    werkzeug    0.16.1  PYSEC-2022-203      2.1.1
+    werkzeug    0.16.1  PYSEC-2023-58       2.2.3
+    werkzeug    0.16.1  PYSEC-2023-57       2.2.3
+
+  The vulnerabilities marked with (!) are critical, can lead to credentials and/or
+  customer data leaks.
+
+  Again, this is not part of the exercise, **but as an architect, I would not let such
+  application run on any infrastructure I am responsible for before this is fixed.**
+
+- The default requirements.txt-based Python venv management is a bad idea. With that,
+  you either don't get reproducible builds (e. g. by pinning first-level dependencies
+  only), or you can do `pip freeze` and then you lose distinction between first-level
+  dependencies and transitive ones. Moreover, there is no holistic dependency management,
+  e. g. "installing this new package-A you just requested is not compatible with previous
+  requirement of package-B at the requested version".
+  More on that e. g. in https://modelpredict.com/wht-requirements-txt-is-not-enough
+
+  Recommendation is to use more advanced tools Python community provides, e. g.
+  python-poetry, pipenv or something else.
+
+## Security vulnerabilities in Frontend
+
+Many libraries are outdated and contain security vulnerabilities, as can be seen from
+docker build step. This is not part of the exercise and I am not a javascript expert,
+but I would not let this run on any infrastructure I am responsible for.
+
