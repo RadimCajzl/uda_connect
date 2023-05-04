@@ -60,4 +60,6 @@ spec:
             configMapKeyRef:
               name: db-env
               key: DB_PORT
+        - name: FLASK_ENV
+          value: "prod"
       restartPolicy: Always

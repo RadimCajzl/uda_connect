@@ -27,6 +27,7 @@ kind-udaconnect: docker-build kind-udaconnect-clean
 	kubectl apply --wait=true -f deployment/postgres.yaml
 
 	# Set up the service and deployment for the API
+	#  - set FLASK_ENV to dev (sets richer logging)
 	#  - replace image names with local defaults
 	#  - replace image pull policy. For kind deployments, we already loaded
 	#   the images to the cluster. If imagePullPolicy hints to check for
@@ -34,6 +35,7 @@ kind-udaconnect: docker-build kind-udaconnect-clean
 	#   in public Container Registries, which we don't want to use
 	#   for fully local dev-setup.)
 	cat deployment/udaconnect-api.yaml | \
+		sed 's/value: "prod"/value: "dev"/' | \
 		sed 's/imagePullPolicy: Always/imagePullPolicy: Never/' | \
 		sed 's@image: udacity/nd064-udaconnect-api:latest@image: docker.io/library/udaconnect-api:latest@' | \
 		kubectl apply --wait=true -f -

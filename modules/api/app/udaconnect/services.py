@@ -1,20 +1,27 @@
 import logging
 from datetime import datetime, timedelta
+import os
 from typing import Dict, List
 
+import app.config
 from app import db
 from app.udaconnect.models import Connection, Location, Person
 from app.udaconnect.schemas import ConnectionSchema, LocationSchema, PersonSchema
 from geoalchemy2.functions import ST_AsText, ST_Point
 from sqlalchemy.sql import text
 
-logging.basicConfig(level=logging.WARNING)
+from app.udaconnect.debug_timer import logged_timer
+
+app_config = app.config.config_by_name[os.getenv("FLASK_ENV") or "prod"]
+
+logging.basicConfig(level=logging.WARNING if not app_config.DEBUG else logging.DEBUG)
 logger = logging.getLogger("udaconnect-api")
 
 
 class ConnectionService:
     @staticmethod
-    def find_contacts(person_id: int, start_date: datetime, end_date: datetime, meters=5
+    def find_contacts(
+        person_id: int, start_date: datetime, end_date: datetime, meters=5
     ) -> List[Connection]:
         """
         Finds all Person who have been within a given distance of a given Person within a date range.
@@ -23,14 +30,21 @@ class ConnectionService:
         large datasets. This is by design: what are some ways or techniques to help make this data integrate more
         smoothly for a better user experience for API consumers?
         """
-        locations: List = db.session.query(Location).filter(
-            Location.person_id == person_id
-        ).filter(Location.creation_time < end_date).filter(
-            Location.creation_time >= start_date
-        ).all()
+        with logged_timer(
+            f"Retrieving all locations for {person_id} between {start_date} and {end_date}"
+        ):
+            locations: List = (
+                db.session.query(Location)
+                .filter(Location.person_id == person_id)
+                .filter(Location.creation_time < end_date)
+                .filter(Location.creation_time >= start_date)
+                .all()
+            )
 
         # Cache all users in memory for quick lookup
-        person_map: Dict[str, Person] = {person.id: person for person in PersonService.retrieve_all()}
+        person_map: Dict[str, Person] = {
+            person.id: person for person in PersonService.retrieve_all()
+        }
 
         # Prepare arguments for queries
         data = []
@@ -57,26 +71,29 @@ class ConnectionService:
         """
         )
         result: List[Connection] = []
-        for line in tuple(data):
-            for (
-                exposed_person_id,
-                location_id,
-                exposed_lat,
-                exposed_long,
-                exposed_time,
-            ) in db.engine.execute(query, **line):
-                location = Location(
-                    id=location_id,
-                    person_id=exposed_person_id,
-                    creation_time=exposed_time,
-                )
-                location.set_wkt_with_coords(exposed_lat, exposed_long)
 
-                result.append(
-                    Connection(
-                        person=person_map[exposed_person_id], location=location,
+        with logged_timer(f"Querying {len(data)} possible connections"):
+            for line in tuple(data):
+                for (
+                    exposed_person_id,
+                    location_id,
+                    exposed_lat,
+                    exposed_long,
+                    exposed_time,
+                ) in db.engine.execute(query, **line):
+                    location = Location(
+                        id=location_id,
+                        person_id=exposed_person_id,
+                        creation_time=exposed_time,
                     )
-                )
+                    location.set_wkt_with_coords(exposed_lat, exposed_long)
+
+                    result.append(
+                        Connection(
+                            person=person_map[exposed_person_id],
+                            location=location,
+                        )
+                    )
 
         return result
 
@@ -84,29 +101,35 @@ class ConnectionService:
 class LocationService:
     @staticmethod
     def retrieve(location_id) -> Location:
-        location, coord_text = (
-            db.session.query(Location, Location.coordinate.ST_AsText())
-            .filter(Location.id == location_id)
-            .one()
-        )
+        with logged_timer(f"Retrieving location {location_id} data"):
+            location, coord_text = (
+                db.session.query(Location, Location.coordinate.ST_AsText())
+                .filter(Location.id == location_id)
+                .one()
+            )
 
-        # Rely on database to return text form of point to reduce overhead of conversion in app code
-        location.wkt_shape = coord_text
+            # Rely on database to return text form of point to reduce overhead of conversion in app code
+            location.wkt_shape = coord_text
         return location
 
     @staticmethod
     def create(location: Dict) -> Location:
-        validation_results: Dict = LocationSchema().validate(location)
-        if validation_results:
-            logger.warning(f"Unexpected data format in payload: {validation_results}")
-            raise Exception(f"Invalid payload: {validation_results}")
+        with logged_timer(f"Creating location {location}"):
+            validation_results: Dict = LocationSchema().validate(location)
+            if validation_results:
+                logger.warning(
+                    f"Unexpected data format in payload: {validation_results}"
+                )
+                raise Exception(f"Invalid payload: {validation_results}")
 
-        new_location = Location()
-        new_location.person_id = location["person_id"]
-        new_location.creation_time = location["creation_time"]
-        new_location.coordinate = ST_Point(location["latitude"], location["longitude"])
-        db.session.add(new_location)
-        db.session.commit()
+            new_location = Location()
+            new_location.person_id = location["person_id"]
+            new_location.creation_time = location["creation_time"]
+            new_location.coordinate = ST_Point(
+                location["latitude"], location["longitude"]
+            )
+            db.session.add(new_location)
+            db.session.commit()
 
         return new_location
 
@@ -114,21 +137,25 @@ class LocationService:
 class PersonService:
     @staticmethod
     def create(person: Dict) -> Person:
-        new_person = Person()
-        new_person.first_name = person["first_name"]
-        new_person.last_name = person["last_name"]
-        new_person.company_name = person["company_name"]
+        with logged_timer(f"Creating person {person}"):
+            new_person = Person()
+            new_person.first_name = person["first_name"]
+            new_person.last_name = person["last_name"]
+            new_person.company_name = person["company_name"]
 
-        db.session.add(new_person)
-        db.session.commit()
+            db.session.add(new_person)
+            db.session.commit()
 
         return new_person
 
     @staticmethod
     def retrieve(person_id: int) -> Person:
-        person = db.session.query(Person).get(person_id)
+        with logged_timer(f"Retrieving person {person_id} data"):
+            person = db.session.query(Person).get(person_id)
         return person
 
     @staticmethod
     def retrieve_all() -> List[Person]:
-        return db.session.query(Person).all()
+        with logged_timer(f"Retrieving all people data"):
+            all_people_data = db.session.query(Person).all()
+        all_people_data
