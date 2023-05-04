@@ -22,7 +22,10 @@ To do so, ***you will refactor this application into a microservice architecture
 ## Running the app
 The project has been set up such that you should be able to have the project up and running with Kubernetes.
 
+**TODO: add a section about kind-based setup.**
+
 ### Prerequisites
+
 We will be installing the tools that we'll need to use for getting our environment set up properly.
 1. [Install Docker](https://docs.docker.com/get-docker/)
 2. [Set up a DockerHub account](https://hub.docker.com/)
