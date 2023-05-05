@@ -33,7 +33,7 @@ packages.
 
 Reasons to upgrade base Python and its dependencies:
 - Python 3.7 is going to be deprecated extremely soon, see https://endoflife.date/python.
-- The main Python dependencies are extremely outdated. They already contain security
+- The main Python dependencies were extremely outdated. They contained serious security
   vulnerabilities, as indicated by pip-audit:
     Name        Version ID                  Fix Versions
     ----------- ------- ------------------- ------------
