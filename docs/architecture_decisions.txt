@@ -1,12 +1,38 @@
 # Architecture decisions
 
-# Recommendations for app developers
-## Backend
+## Assumptions about UdaConnect usage
 
+In real world, this would need to be clarified with stakeholders. We would need
+to avoid risk of overengineering the app.
+
+However for the sake of task I assume the following:
+ - UdaConnnect app is expected to be massively used, collecting massive amout of data.
+   (As in, UdaConnect automatically collecting and sending data with some default service
+   installed on phones by large user base.)
+ - The business managing the app has hired several teams to take care of the app and
+   infrastructure behind.
+ - Owner of the app launched massive advertising campaign, which is expected to be
+   successfull in bringing in substantial number of new users.
+
+With this in mind, we need to propose a truly scalable architecture. As mentioned, if
+these assumptions are not met, we would overengineer UdaConnect - e. g. such infrastructure
+would be a nightmare to maintain in small team of you-do-every-task engineers, and would
+be an overkill if the real usage is limited to a few hundred regular guests at handful
+of evenets.
+
+## Changes in backend Python code
+
+### Outdated packages
+
+The backend code uses extremely outdated versions of base python and dependencies. As
+an architect responsible for infrastructure, I would not let such old code run on anything
+I am responsible for.
+
+Therefore, during the refactor, I will upgrade Python to 3.10 and upgrade versions of any
+packages.
+
+Reasons to upgrade base Python and its dependencies:
 - Python 3.7 is going to be deprecated extremely soon, see https://endoflife.date/python.
-  This is not part of the exercise, but **as an architect, I would not let any
-  Python 3.7-based application run on infrastructure I am responsible for.**
-
 - The main Python dependencies are extremely outdated. They already contain security
   vulnerabilities, as indicated by pip-audit:
     Name        Version ID                  Fix Versions
@@ -23,40 +49,132 @@
   The vulnerabilities marked with (!) are critical, can lead to credentials and/or
   customer data leaks.
 
-  Again, this is not part of the exercise, **but as an architect, I would not let such
-  application run on any infrastructure I am responsible for before this is fixed.**
-  
-  Due to lack of time, I have not taken any further steps here.
+From my point of view, upgrading base Python and packages is not up to discussion.
 
-- The default requirements.txt-based Python venv management is a bad idea. With that,
-  you either don't get reproducible builds (e. g. by pinning first-level dependencies
-  only), or you can do `pip freeze` and then you lose distinction between first-level
-  dependencies and transitive ones. Moreover, there is no holistic dependency management,
-  e. g. "installing this new package-A you just requested is not compatible with previous
-  requirement of package-B at the requested version".
-  More on that e. g. in https://modelpredict.com/wht-requirements-txt-is-not-enough
+### Dependency management
 
-  Recommendation is to use more advanced tools Python community provides, e. g.
-  python-poetry, pipenv or something else.
+The default requirements.txt-based Python venv management is a bad idea. With that,
+you either don't get reproducible builds (e. g. by pinning first-level dependencies
+only), or you can do `pip freeze` and then you lose distinction between first-level
+dependencies and transitive ones. Moreover, there is no holistic dependency management,
+e. g. "installing this new package-A you just requested is not compatible with previous
+requirement of package-B at the requested version".
+More on that e. g. in https://modelpredict.com/wht-requirements-txt-is-not-enough
 
-- The backend code contains no tests. Again, as an architect, I would not let any code
-  without automated testing run on infrastructure I am responsible for, but due to lack
-  of time I have not created a comprehensive test suite.
+Therefore, during the refactor, I will replace requirements.txt by python-poetry
+https://python-poetry.org/.
 
-## Frontend
+In real world, this would need to be discussed with original app developers. However
+the formulation of UdaConnect tasks ("keep Python, Kubernetes and functionality")
+seem to allow such flexibility.
 
- - Many libraries are outdated and contain security vulnerabilities, as can be seen from
-   docker build step. This is not part of the exercise and I am not a javascript expert,
-   but I would not let this run on any infrastructure I am responsible for.
+### Missing tests
 
- - Frontend breaks with React-error if database is empty.
+The backend code contains no tests. Again, as an architect, I would not let any code
+without automated testing run on infrastructure I am responsible for. Due to limited
+time for the project, this won't be a priority, however I plan to include tests for
+any new functionalities.
+
+## Required changes in Frontend code
+
+Many libraries are outdated and contain security vulnerabilities, as can be seen from
+docker build step. This is not part of the exercise and I am not a javascript expert,
+but I would not let this run on any infrastructure I am responsible for.
+
+Furthermore, if the people-location database is empty, frontend breaks with React-error.
+This needs to be fixed.
 
 
-# Remarks on original architecture
+## Proposed target architecture
 
-As can be seen in (TODO: reference to original architecture diagram), the original
-implementation contains one single point of failure - the PostgreSQL DB instance.
-While being extremely useful (also together with the PostGIS extension), PSQL 
-is by design not scalable and when the usage hits certain threshold, it just won't
-be scalable using good-practice solutions.
+### Summary
+ - API changes:
+   - GET /locations will be discontinued. Current app has no use for this endpoint.
+   - Current monolithic controller will be split into LocationAPI, PersonAPI and
+     ConnectionAPI. Corresponding endpoints will keep their structure.
+ - Data to be stored in MongoDB. PostGIS procedures to be replaced by MongoDB
+   "geoNear" feature.
+ - ConnectionService to be split into ConnectionAggregator service and ConnectionTracker,
+   talking together using gRPC. Worker will calculate all possible connections for
+   one person-location, ConnectionAggregator service will request required
+   calculations and aggregate them to produce "connection-report" for single person.
+ - LocationService will be split into three parts - LocationCollector which will continue
+   to receive new location data, and LocationProcessor which will save the data to MongoDB.
+   LocationService will keep functionality to retrieve all existing people-location data.
 
+   Kafka queue will be used between LocationCollector and LocationProcessor - LocationCollector
+   will push data to queue, LocationProcessor will listen for new locations and store them to
+   MongoDB.
+
+ - PersonService will be kept as-is once switched to MongoDB. Possible future (out of scope)
+   improvements should support pagination of all people-data.
+
+ - All new services will implement metrics REST endpoints, which are implemented for future
+   housekeeping purposes. For now, these will be used just for monitoring. If the real usage
+   varies over time, we will use these metrics for Kubernetes pod autoscaler (using custom
+   metrics API). Custom Kubernetes autoscaling metrics is beyond scope of current refactoring.
+
+### Data storage
+
+As discussed above in "Assumptions about UdaConnect usage", we assume massive
+increase in number of people-locations and their massive, continuous influx. This
+requires natively-scalable data storage. Unfortunately, PostgreSQL is not natively
+scalable. Therefore, I propose to replace PostgreSQL with MongoDB.
+(In general, any natively-scalable DB would suffice, I have selected MongoDB since
+I have most experience with MongoDB.)
+
+PostGIS queries are used only to determine locations within radius of some points,
+which is also implemented in MongoDB, see official documentation:
+https://www.mongodb.com/docs/v4.0/reference/operator/aggregation/geoNear/
+
+
+In real world, this would require sensitive communication with original developer team,
+it is very likely that there will be some negative sentiment caused by abandoning PostGIS.
+
+### ConnectionService
+
+As mentioned above, we will split ConenctionService to ConnectionAggregator and ConnectionTracker
+services.
+
+ConnectionTracker will do a single thing - query all possible connections for single person-location-id
+within given timeframe.
+
+ConnectionAggregator will:
+ - replace the original ConnectionService API. Frontend will talk to ConnectionAggregator when
+   querying possible connections of single person.
+ - query all location-ids for given person within given timeframe.
+ - for each location-ids of given person, call ConnectionTracker to determine possible connections
+   and collect the results.
+
+Large numbers of calls between ConnectionTracker and ConnectionAggregator can be expected,
+therefore these parts will communicate using gRPC to eliminate negative effect of communication
+latencies.
+
+Main reason to select this approach is parallelizations. With multiple ConnectionTracker instances,
+ConnectionAggregator can call them in parallel, reducing single-query response time.
+
+## LocationService
+
+Kafka queue was selected as main way to ingest new data due to the expectations of continuous,
+massive flow of new people-location data. We will leverage the Kafka-native scalability and
+safety guarantees.
+This requires the split into LocationCollector, LocationProcessor and LocationService explained
+in refactoring summary above.
+
+Main benefit is that each of these three Location components can be scaled independently.
+
+### PersonService
+
+PersonService handles only simple CRUD operations, therefore I see no need to refactor it
+into multiple parts. Moreover, by definition there will be several orders of magnitude more
+people-location data than people registrations, so PersonService is unlikely to become
+a bottleneck.
+
+Nevertheless, with switch to MongoDB, we will enable future horizontal scaling of PersonService,
+thus making it a bit more future-proof than current PSQL implementation is.
+
+Possible future improvement of PersonService should aim to support pagination of `retrieve_all`
+method. If we have thousands of users, returning them all every time does not make sense (as no
+GUI will be able to display that in sensible way) and would waste resources.
+However I consider this out of scope for current refactoring. This would also require changes
+in frontend code.
