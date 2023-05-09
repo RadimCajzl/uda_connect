@@ -8,5 +8,5 @@ RUN pip install -r requirements.txt
 
 EXPOSE 5000
 
-COPY . .
+COPY . .    # TODO: exclude init-db files
 CMD ["flask", "run", "--host", "0.0.0.0"]

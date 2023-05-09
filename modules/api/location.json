@@ -1,0 +1,353 @@
+[
+	{
+		"id": 29,
+		"person_id": 1,
+		"coordinates": [
+			-122.290524,
+			37.553441
+		],
+		"creation_time": "2020-08-18T08:37:06.000Z"
+	},
+	{
+		"id": 30,
+		"person_id": 5,
+		"coordinates": [
+			-122.290883,
+			37.553630
+		],
+		"creation_time": "2020-08-15T08:37:06.000Z"
+	},
+	{
+		"id": 31,
+		"person_id": 5,
+		"coordinates": [
+			-122.290524,
+			37.553441
+		],
+		"creation_time": "2020-08-15T08:37:06.000Z"
+	},
+	{
+		"id": 32,
+		"person_id": 1,
+		"coordinates": [
+			-122.290521,
+			37.553441
+		],
+		"creation_time": "2020-08-15T08:37:06.000Z"
+	},
+	{
+		"id": 33,
+		"person_id": 1,
+		"coordinates": [
+			-122.290521,
+			37.553451
+		],
+		"creation_time": "2020-08-19T08:37:06.000Z"
+	},
+	{
+		"id": 34,
+		"person_id": 6,
+		"coordinates": [
+			-122.290883,
+			37.553630
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 36,
+		"person_id": 1,
+		"coordinates": [
+			-122.290883,
+			37.553630
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 37,
+		"person_id": 1,
+		"coordinates": [
+			-122.290883,
+			37.553630
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 38,
+		"person_id": 1,
+		"coordinates": [
+			-122.290883,
+			37.553630
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 39,
+		"person_id": 1,
+		"coordinates": [
+			-122.290883,
+			37.553630
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 40,
+		"person_id": 1,
+		"coordinates": [
+			-122.290883,
+			37.553630
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 41,
+		"person_id": 1,
+		"coordinates": [
+			-122.290883,
+			37.553630
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 42,
+		"person_id": 6,
+		"coordinates": [
+			-144.941486,
+			-73.428043
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 43,
+		"person_id": 6,
+		"coordinates": [
+			-144.941486,
+			-73.428043
+		],
+		"creation_time": "2020-07-06T08:37:06.000Z"
+	},
+	{
+		"id": 44,
+		"person_id": 6,
+		"coordinates": [
+			-144.941486,
+			-73.428043
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 45,
+		"person_id": 6,
+		"coordinates": [
+			-144.941494,
+			-73.427742
+		],
+		"creation_time": "2020-07-05T08:37:06.000Z"
+	},
+	{
+		"id": 46,
+		"person_id": 6,
+		"coordinates": [
+			-144.941436,
+			-73.427815
+		],
+		"creation_time": "2020-04-07T08:37:06.000Z"
+	},
+	{
+		"id": 47,
+		"person_id": 6,
+		"coordinates": [
+			-144.941436,
+			-73.427815
+		],
+		"creation_time": "2020-05-01T08:37:06.000Z"
+	},
+	{
+		"id": 48,
+		"person_id": 6,
+		"coordinates": [
+			-144.941436,
+			-73.427815
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 49,
+		"person_id": 8,
+		"coordinates": [
+			-144.941436,
+			-73.427815
+		],
+		"creation_time": "2020-07-07T08:38:06.000Z"
+	},
+	{
+		"id": 50,
+		"person_id": 8,
+		"coordinates": [
+			-144.941436,
+			-73.427815
+		],
+		"creation_time": "2020-07-07T08:38:06.000Z"
+	},
+	{
+		"id": 51,
+		"person_id": 8,
+		"coordinates": [
+			-144.941436,
+			-73.427815
+		],
+		"creation_time": "2020-07-01T08:38:06.000Z"
+	},
+	{
+		"id": 52,
+		"person_id": 9,
+		"coordinates": [
+			-144.941436,
+			-73.427815
+		],
+		"creation_time": "2020-07-01T08:38:06.000Z"
+	},
+	{
+		"id": 53,
+		"person_id": 9,
+		"coordinates": [
+			-144.941486,
+			-73.428043
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 54,
+		"person_id": 9,
+		"coordinates": [
+			-144.941486,
+			-73.428043
+		],
+		"creation_time": "2019-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 55,
+		"person_id": 5,
+		"coordinates": [
+			-144.941486,
+			-74.428043
+		],
+		"creation_time": "2019-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 56,
+		"person_id": 5,
+		"coordinates": [
+			-145.941486,
+			-74.428043
+		],
+		"creation_time": "2019-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 57,
+		"person_id": 5,
+		"coordinates": [
+			-122.290883,
+			37.553630
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 58,
+		"person_id": 8,
+		"coordinates": [
+			-144.941486,
+			-73.428043
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 59,
+		"person_id": 8,
+		"coordinates": [
+			-144.941486,
+			-73.428043
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 60,
+		"person_id": 8,
+		"coordinates": [
+			-144.941486,
+			-73.428043
+		],
+		"creation_time": "2020-07-06T08:37:06.000Z"
+	},
+	{
+		"id": 61,
+		"person_id": 8,
+		"coordinates": [
+			-144.941486,
+			-73.428044
+		],
+		"creation_time": "2020-07-05T08:37:06.000Z"
+	},
+	{
+		"id": 62,
+		"person_id": 8,
+		"coordinates": [
+			-144.941486,
+			-73.428048
+		],
+		"creation_time": "2020-01-05T09:37:06.000Z"
+	},
+	{
+		"id": 63,
+		"person_id": 5,
+		"coordinates": [
+			-144.941486,
+			-73.428048
+		],
+		"creation_time": "2020-01-05T09:37:06.000Z"
+	},
+	{
+		"id": 64,
+		"person_id": 6,
+		"coordinates": [
+			-144.941486,
+			-73.428048
+		],
+		"creation_time": "2020-01-05T09:37:06.000Z"
+	},
+	{
+		"id": 65,
+		"person_id": 9,
+		"coordinates": [
+			-122.290883,
+			37.553630
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 66,
+		"person_id": 5,
+		"coordinates": [
+			-122.290883,
+			37.553630
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 67,
+		"person_id": 8,
+		"coordinates": [
+			-122.290883,
+			37.553630
+		],
+		"creation_time": "2020-07-07T08:37:06.000Z"
+	},
+	{
+		"id": 68,
+		"person_id": 6,
+		"coordinates": [
+			-122.290883,
+			37.553630
+		],
+		"creation_time": "2020-08-15T08:37:06.000Z"
+	}
+]

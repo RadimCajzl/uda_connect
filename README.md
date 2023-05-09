@@ -106,6 +106,11 @@ You may notice the odd port numbers being served to `localhost`. [By default, Ku
 Connections to the Kubernetes services have been set up through a [NodePort](https://kubernetes.io/docs/concepts/services-networking/service/#nodeport). (While we would use a technology like an [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) to expose our Kubernetes services in deployment, a NodePort will suffice for development.)
 
 ## Development
+
+**TODO: switch to python-poetry**
+**TODO: switch to MongoDB**
+**TODO: docker-compose**
+
 ### New Services
 New services can be created inside of the `modules/` subfolder. You can choose to write something new with Flask, copy and rework the `modules/api` service into something new, or just create a very simple Python application.
 

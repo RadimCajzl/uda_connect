@@ -12,3 +12,15 @@ services:
       context: modules/frontend
     ports:
       - "30000:3000"
+  mongodb_udaconnect:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: udaconnect_root
+      MONGO_INITDB_ROOT_PASSWORD: tinydogonaleash
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_udaconnect:/data/db
+
+volumes:
+  mongodb_data_udaconnect:
