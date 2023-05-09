@@ -51,6 +51,14 @@ Reasons to upgrade base Python and its dependencies:
 
 From my point of view, upgrading base Python and packages is not up to discussion.
 
+### Switch to FastAPI
+
+Since the starter code was written, FastAPI established itself as one of production
+tools to create backends. I decided to switch from Flast to FastAPI since I plan to
+leverage two advantages it has:
+ - Built-in support for python async framework.
+ - Automatically generated OpenAPI documentation.
+
 ### Dependency management
 
 The default requirements.txt-based Python venv management is a bad idea. With that,
