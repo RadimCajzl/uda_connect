@@ -45,11 +45,14 @@ kind-udaconnect: docker-build kind-udaconnect-clean
 		kubectl apply --wait=true -f -
 
 	## Populate database with initial data:
-	# TODO: switch to Mongo
-	# wait for PSQL to be ready:
+	# wait for Mongo & API to be ready:
+	kubectl wait deployment udaconnect-api --for condition=Available=True --timeout=300s
 	kubectl wait deployment mongo --for condition=Available=True --timeout=300s
 
-	# sh scripts/run_db_command.sh $$(kubectl get pods --selector=app=postgres --output=name)
+	# PoC-phase has data and init-db script inside API container.
+	# TODO: before moving to production, split the init-db script
+	# to proper location.
+	kubectl exec service/udaconnect-api poetry run python /api/init_db.py
 
 
 make kind-udaconnect-clean:

@@ -1,12 +1,13 @@
-FROM python:3.7-alpine
+FROM python:3.10-alpine
 
-WORKDIR .
+WORKDIR api
 
-RUN apk add --no-cache gcc musl-dev linux-headers geos libc-dev postgresql-dev
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+RUN python -m pip install poetry
+COPY pyproject.toml poetry.lock ./
+RUN poetry install --only main
 
 EXPOSE 5000
 
-COPY . .    # TODO: exclude init-db files
-CMD ["flask", "run", "--host", "0.0.0.0"]
+COPY . .
+
+CMD ["poetry" , "run", "uvicorn", "main:uda_app", "--host", "0.0.0.0", "--reload", "--port", "5000"]
