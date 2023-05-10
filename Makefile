@@ -24,7 +24,7 @@ kind-udaconnect: docker-build kind-udaconnect-clean
 	kubectl apply --wait=true -f deployment/db-secret.yaml
 
 	## Deploy PostgreSQL
-	kubectl apply --wait=true -f deployment/postgres.yaml
+	kubectl apply --wait=true -f deployment/mongo.yaml
 
 	# Set up the service and deployment for the API
 	#  - set FLASK_ENV to dev (sets richer logging)
@@ -45,20 +45,21 @@ kind-udaconnect: docker-build kind-udaconnect-clean
 		kubectl apply --wait=true -f -
 
 	## Populate database with initial data:
+	# TODO: switch to Mongo
 	# wait for PSQL to be ready:
-	kubectl wait deployment postgres --for condition=Available=True
+	kubectl wait deployment mongo --for condition=Available=True --timeout=300s
 
-	sh scripts/run_db_command.sh $$(kubectl get pods --selector=app=postgres --output=name)
+	# sh scripts/run_db_command.sh $$(kubectl get pods --selector=app=postgres --output=name)
 
 
 make kind-udaconnect-clean:
 	kubectl delete --ignore-not-found=true --wait=true \
 		service/udaconnect-api  \
 		service/udaconnect-app  \
-		service/postgres \
+		service/mongo \
 		deployment.apps/udaconnect-api  \
 		deployment.apps/udaconnect-app \
-		deployment.apps/postgres
+		deployment.apps/mongo
 	
 	docker exec kind-worker rm -rf '/mnt/data/*'
 

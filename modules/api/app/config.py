@@ -1,6 +1,6 @@
 import os
 
 MONGO_CONNECTION_URI = os.environ["MONGO_CONNECTION_URI"]
-MONGO_DB_NAME = "connections"
+MONGO_DB_NAME = os.environ["MONGO_DB_NAME"]
 
-DEBUG = os.environ["DEBUG"].lower() == "true"
+DEBUG = os.getenv("DEBUG") == "True"

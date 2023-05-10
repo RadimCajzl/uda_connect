@@ -4,7 +4,6 @@ version = "0.1.0"
 description = ""
 authors = ["Radim Cajzl <radim.cajzl@eon.com>"]
 readme = "README.md"
-packages = [{include = "udaconnect_api"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

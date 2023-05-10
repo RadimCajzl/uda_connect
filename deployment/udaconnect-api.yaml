@@ -35,31 +35,14 @@ spec:
         name: udaconnect-api
         imagePullPolicy: Always
         env:
-        - name: DB_USERNAME
-          valueFrom:
-            configMapKeyRef:
-              name: db-env
-              key: DB_USERNAME
-        - name: DB_PASSWORD
+        - name: MONGO_CONNECTION_URI
           valueFrom:
             secretKeyRef:
               name: db-secret
-              key: DB_PASSWORD
-        - name: DB_NAME
+              key: MONGO_CONNECTION_URI
+        - name: MONGO_DB_NAME
           valueFrom:
             configMapKeyRef:
               name: db-env
-              key: DB_NAME
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: db-env
-              key: DB_HOST
-        - name: DB_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: db-env
-              key: DB_PORT
-        - name: FLASK_ENV
-          value: "prod"
+              key: MONGO_DB_NAME
       restartPolicy: Always
