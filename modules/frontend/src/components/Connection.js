@@ -50,8 +50,8 @@ class Connection extends Component {
                 met at
                 <span className="latlng">
                   {` `}
-                  {connection.location.latitude},{` `}
-                  {connection.location.longitude}
+                  {connection.location.coordinates[1]},{` `}
+                  {connection.location.coordinates[0]}
                 </span>
                 <br />
                 {`on `}

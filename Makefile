@@ -13,6 +13,9 @@ docker-build:
 docker-run: docker-build
 	docker compose up
 
+docker-run-mongo:
+	docker compose start mongodb_udaconnect
+
 kind-udaconnect: docker-build kind-udaconnect-clean
 	# push docker images into kind cluster
 	kind load docker-image udaconnect-api:latest
@@ -23,7 +26,7 @@ kind-udaconnect: docker-build kind-udaconnect-clean
 	kubectl apply --wait=true -f deployment/db-configmap.yaml
 	kubectl apply --wait=true -f deployment/db-secret.yaml
 
-	## Deploy PostgreSQL
+	## Deploy MongoDB
 	kubectl apply --wait=true -f deployment/mongo.yaml
 
 	# Set up the service and deployment for the API

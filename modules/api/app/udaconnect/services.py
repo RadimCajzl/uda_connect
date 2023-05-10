@@ -1,13 +1,7 @@
-import logging
 from datetime import datetime
 from typing import List
 
-import app.config
-from app.udaconnect.models import (Connection, Location, Person,
-                                   UdaMongoCollections)
-
-logging.basicConfig(level=logging.WARNING if not app.config.DEBUG else logging.DEBUG)
-logger = logging.getLogger("udaconnect-api")
+from app.udaconnect.models import Connection, Location, Person, UdaMongoCollections
 
 
 class ConnectionService:
@@ -41,7 +35,9 @@ class ConnectionService:
             one_location_connections = [
                 Connection(
                     person=Person.parse_obj(
-                        self.person_collection.find_one({"id": person_id})
+                        self.person_collection.find_one(
+                            {"id": other_person_location["person_id"]}
+                        )
                     ),
                     location=Location.parse_obj(other_person_location),
                 )
