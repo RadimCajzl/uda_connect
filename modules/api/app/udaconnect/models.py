@@ -1,10 +1,6 @@
-from __future__ import annotations
-
 import datetime as dt
-from dataclasses import dataclass
 from typing import Tuple
 
-import pymongo.collection
 from pydantic import BaseModel
 
 
@@ -25,9 +21,3 @@ class Location(BaseModel):
 class Connection(BaseModel):
     location: Location
     person: Person
-
-
-@dataclass
-class UdaMongoCollections:
-    person: pymongo.collection.Collection
-    location: pymongo.collection.Collection

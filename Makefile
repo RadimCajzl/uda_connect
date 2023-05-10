@@ -37,11 +37,25 @@ kind-udaconnect: docker-build kind-udaconnect-clean
 	#   more recent image version, kind would try to find the package
 	#   in public Container Registries, which we don't want to use
 	#   for fully local dev-setup.)
-	cat deployment/udaconnect-api.yaml | \
+
+	# Backend microservices:
+	cat deployment/person-api.yaml | \
 		sed 's/value: "prod"/value: "dev"/' | \
 		sed 's/imagePullPolicy: Always/imagePullPolicy: Never/' | \
 		sed 's@image: udacity/nd064-udaconnect-api:latest@image: docker.io/library/udaconnect-api:latest@' | \
 		kubectl apply --wait=true -f -
+	cat deployment/location-api.yaml | \
+		sed 's/value: "prod"/value: "dev"/' | \
+		sed 's/imagePullPolicy: Always/imagePullPolicy: Never/' | \
+		sed 's@image: udacity/nd064-udaconnect-api:latest@image: docker.io/library/udaconnect-api:latest@' | \
+		kubectl apply --wait=true -f -
+	cat deployment/connection-api.yaml | \
+		sed 's/value: "prod"/value: "dev"/' | \
+		sed 's/imagePullPolicy: Always/imagePullPolicy: Never/' | \
+		sed 's@image: udacity/nd064-udaconnect-api:latest@image: docker.io/library/udaconnect-api:latest@' | \
+		kubectl apply --wait=true -f -
+	
+	# Frontend:
 	cat deployment/udaconnect-app.yaml | \
 		sed 's/imagePullPolicy: Always/imagePullPolicy: Never/' | \
 		sed 's@image: udacity/nd064-udaconnect-app:latest@image: docker.io/library/udaconnect-app:latest@' | \
@@ -49,21 +63,25 @@ kind-udaconnect: docker-build kind-udaconnect-clean
 
 	## Populate database with initial data:
 	# wait for Mongo & API to be ready:
-	kubectl wait deployment udaconnect-api --for condition=Available=True --timeout=300s
+	kubectl wait deployment location-api --for condition=Available=True --timeout=300s
 	kubectl wait deployment mongo --for condition=Available=True --timeout=300s
 
 	# PoC-phase has data and init-db script inside API container.
 	# TODO: before moving to production, split the init-db script
 	# to proper location.
-	kubectl exec service/udaconnect-api poetry run python /api/init_db.py
+	kubectl exec service/location-api poetry run python /api/init_db.py
 
 
 make kind-udaconnect-clean:
 	kubectl delete --ignore-not-found=true --wait=true \
-		service/udaconnect-api  \
+		service/person-api  \
+		service/location-api  \
+		service/connection-api  \
 		service/udaconnect-app  \
 		service/mongo \
-		deployment.apps/udaconnect-api  \
+		deployment.apps/person-api  \
+		deployment.apps/location-api  \
+		deployment.apps/connection-api  \
 		deployment.apps/udaconnect-app \
 		deployment.apps/mongo
 	

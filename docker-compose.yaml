@@ -1,11 +1,35 @@
 version: "3.9"
 services:
-  api:
+  person_service:
     image: udaconnect-api
     build:
       context: modules/api
+    command: ["poetry" , "run", "uvicorn", "person_api:uda_app", "--host", "0.0.0.0", "--reload", "--port", "5000"]
     ports:
       - "30001:5000"
+    environment:
+      MONGO_CONNECTION_URI: mongodb://udaconnect_root:tinydogonaleash@localhost:27017/?authMechanism=DEFAULT
+      MONGO_DB_NAME: geoconnections
+  location_service:
+    image: udaconnect-api
+    build:
+      context: modules/api
+    command: ["poetry" , "run", "uvicorn", "location_api:uda_app", "--host", "0.0.0.0", "--reload", "--port", "5000"]
+    ports:
+      - "30002:5000"
+    environment:
+      MONGO_CONNECTION_URI: mongodb://udaconnect_root:tinydogonaleash@localhost:27017/?authMechanism=DEFAULT
+      MONGO_DB_NAME: geoconnections
+  connection_service:
+    image: udaconnect-api
+    build:
+      context: modules/api
+    command: ["poetry" , "run", "uvicorn", "connection_api:uda_app", "--host", "0.0.0.0", "--reload", "--port", "5000"]
+    ports:
+      - "30003:5000"
+    environment:
+      MONGO_CONNECTION_URI: mongodb://udaconnect_root:tinydogonaleash@localhost:27017/?authMechanism=DEFAULT
+      MONGO_DB_NAME: geoconnections
   frontend:
     image: udaconnect-app
     build:

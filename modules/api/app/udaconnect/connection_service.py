@@ -1,13 +1,19 @@
 from datetime import datetime
 from typing import List
 
-from app.udaconnect.models import Connection, Location, Person, UdaMongoCollections
+import pymongo.collection
+
+from app.udaconnect.models import Connection, Location, Person
 
 
 class ConnectionService:
-    def __init__(self, mongo_collections: UdaMongoCollections) -> None:
-        self.person_collection = mongo_collections.person
-        self.location_collection = mongo_collections.location
+    def __init__(
+        self,
+        person_collection: pymongo.collection.Collection,
+        location_collection: pymongo.collection.Collection,
+    ) -> None:
+        self.person_collection = person_collection
+        self.location_collection = location_collection
 
     def find_contacts(
         self, person_id: int, start_date: datetime, end_date: datetime, meters=5
@@ -60,37 +66,3 @@ class ConnectionService:
             result += one_location_connections
 
         return result
-
-
-class LocationService:
-    def __init__(self, mongo_collections: UdaMongoCollections) -> None:
-        self.person_collection = mongo_collections.person
-        self.location_collection = mongo_collections.location
-
-    def create(self, location: Location) -> Location:
-        self.location_collection.insert_one(location)
-        return location
-
-
-class PersonService:
-    def __init__(self, mongo_collections: UdaMongoCollections) -> None:
-        self.person_collection = mongo_collections.person
-        self.location_collection = mongo_collections.location
-
-    def create(self, person: Person) -> Person:
-        self.person_collection.insert_one(person)
-
-        return person
-
-    def retrieve(self, person_id: int) -> Person:
-        if (
-            person_data := self.person_collection.find_one({"id": person_id})
-        ) is not None:
-            return Person.parse_obj(person_data)
-        else:
-            raise ValueError(f"No {person_id = } found in database.")
-
-    def retrieve_all(self) -> List[Person]:
-        return [
-            Person.parse_obj(one_person) for one_person in self.person_collection.find()
-        ]

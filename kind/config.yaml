@@ -14,14 +14,24 @@ nodes:
     hostPort: 30000
     listenAddress: "0.0.0.0"
     protocol: tcp
-  ## Backend:
+  ## PersonService
   - containerPort: 30001
     hostPort: 30001
     listenAddress: "0.0.0.0"
     protocol: tcp
-  ## Database:
+  ## LocationService:
   - containerPort: 30002
     hostPort: 30002
+    listenAddress: "0.0.0.0"
+    protocol: tcp
+  ## ConnectionService:
+  - containerPort: 30002
+    hostPort: 30002
+    listenAddress: "0.0.0.0"
+    protocol: tcp
+  ## Database:
+  - containerPort: 30010
+    hostPort: 30010
     listenAddress: "0.0.0.0"
     protocol: tcp
 - role: worker
