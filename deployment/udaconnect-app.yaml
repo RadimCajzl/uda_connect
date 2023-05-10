@@ -41,4 +41,7 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "256m"
+        env:
+        - name: REACT_APP_API_BASE_URL
+          value: "http://localhost:30001"
       restartPolicy: Always

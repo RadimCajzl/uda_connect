@@ -2,6 +2,7 @@ import datetime as dt
 from typing import List
 
 import fastapi
+import fastapi.middleware.cors
 import pymongo.collection
 
 import app.config
@@ -9,6 +10,23 @@ import app.udaconnect.models
 from app.udaconnect.services import ConnectionService, LocationService, PersonService
 
 uda_app = fastapi.FastAPI()
+
+## Add CORS-headers. Required for React-frontend to be able to connect
+# to our api.
+# see https://fastapi.tiangolo.com/tutorial/cors/?h=%20cors#use-corsmiddleware
+# for more details.
+
+uda_app.add_middleware(
+    fastapi.middleware.cors.CORSMiddleware,
+    allow_origins=[
+        "http://localhost:8001",
+        "http://localhost:30000",
+        "http://localhost:30001",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 async def mongodb_collections() -> app.udaconnect.models.UdaMongoCollections:
@@ -68,13 +86,16 @@ async def get_one_person(
 )
 async def find_contacts_for_person(
     person_id: int,
-    start_date: dt.datetime,
-    end_date: dt.datetime,
+    start_date: dt.date,
+    end_date: dt.date,
     distance: int = 5,
     mongo_collections: app.udaconnect.models.UdaMongoCollections = fastapi.Depends(
         mongodb_collections
     ),
 ) -> List[app.udaconnect.models.Connection]:
     return ConnectionService(mongo_collections=mongo_collections).find_contacts(
-        person_id=person_id, start_date=start_date, end_date=end_date, meters=distance
+        person_id=person_id,
+        start_date=dt.datetime.combine(start_date, dt.time(0, 0, 0)),
+        end_date=dt.datetime.combine(end_date, dt.time(23, 59, 59)),
+        meters=distance,
     )

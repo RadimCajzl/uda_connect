@@ -10,6 +10,8 @@ services:
     image: udaconnect-app
     build:
       context: modules/frontend
+    environment:
+      REACT_APP_API_BASE_URL: http://localhost:30001
     ports:
       - "30000:3000"
   mongodb_udaconnect:
