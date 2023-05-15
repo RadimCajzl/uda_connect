@@ -3,4 +3,9 @@ import os
 MONGO_CONNECTION_URI = os.environ["MONGO_CONNECTION_URI"]
 MONGO_DB_NAME = os.environ["MONGO_DB_NAME"]
 
+CONNECTION_TRACKER_PORT = int(os.environ["CONNECTION_TRACKER_PORT"])
+CONNECTION_TRACKER_GRPC_URL = (
+    f"{os.environ['CONNECTION_TRACKER_HOST']}:{os.environ['CONNECTION_TRACKER_PORT']}"
+)
+
 DEBUG = os.getenv("DEBUG") == "True"

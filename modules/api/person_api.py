@@ -6,8 +6,8 @@ import pymongo.collection
 
 import app.config
 import app.udaconnect.models
-from base_app import create_base_app, person_collection
 from app.udaconnect.person_service import PersonService
+from base_app import create_base_app, person_collection
 
 uda_app = create_base_app()
 

@@ -1,6 +1,6 @@
 [flake8]
 max_line_length = 130
-exclude = .git,__pycache__,.venv,*/ipython_config.py,docs,notebooks,build,dist
+exclude = .git,__pycache__,.venv,*/ipython_config.py,docs,notebooks,build,dist,*_pb2_grpc.py,*_pb2.py
 ignore = E266,E203,E501,W503
 classmethod-decorators =
     classmethod

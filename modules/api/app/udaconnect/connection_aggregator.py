@@ -1,12 +1,16 @@
 from datetime import datetime
 from typing import List
 
+import grpc  # type: ignore
 import pymongo.collection
 
-from app.udaconnect.models import Connection, Location, Person
+import app.config
+import connection_tracker_api.connection_pb2
+import connection_tracker_api.connection_pb2_grpc
+from app.udaconnect.models import Connection, Location
 
 
-class ConnectionService:
+class ConnectionAggregator:
     def __init__(
         self,
         person_collection: pymongo.collection.Collection,
@@ -36,33 +40,27 @@ class ConnectionService:
             )
         ]
 
+        connection_tracker_channel = grpc.insecure_channel(
+            app.config.CONNECTION_TRACKER_GRPC_URL
+        )
+        connection_tracker_client = (
+            connection_tracker_api.connection_pb2_grpc.ConnectionTrackerStub(
+                connection_tracker_channel
+            )
+        )
+
         result: List[Connection] = list()
+        # TODO: this for cycle should be parallelized for better performance.
         for this_person_location in locations:
-            one_location_connections = [
-                Connection(
-                    person=Person.parse_obj(
-                        self.person_collection.find_one(
-                            {"id": other_person_location["person_id"]}
-                        )
-                    ),
-                    location=Location.parse_obj(other_person_location),
+            grpc_connections_one_location = connection_tracker_client.Get(
+                connection_tracker_api.connection_pb2.ConnectionRequest(  # type: ignore
+                    location=this_person_location.to_grpc(),
+                    start_date=start_date.isoformat(),
+                    end_date=end_date.isoformat(),
+                    meters=meters,
                 )
-                for other_person_location in self.location_collection.find(
-                    {
-                        "id": {"$ne": person_id},
-                        "creation_time": {"$lt": end_date, "$gte": start_date},
-                        "coordinates": {
-                            "$near": {
-                                "$geometry": {
-                                    "type": "Point",
-                                    "coordinates": this_person_location.coordinates,
-                                },
-                                "$maxDistance": meters,
-                            }
-                        },
-                    }
-                )
-            ]
-            result += one_location_connections
+            )
+            for one_grpc_connection in grpc_connections_one_location:
+                result.append(Connection.from_grcp(one_grpc_connection))
 
         return result

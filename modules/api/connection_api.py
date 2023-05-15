@@ -7,7 +7,7 @@ import pymongo.collection
 
 import app.config
 import app.udaconnect.models
-from app.udaconnect.connection_service import ConnectionService
+from app.udaconnect.connection_aggregator import ConnectionAggregator
 from base_app import create_base_app, location_collection, person_collection
 
 uda_app = create_base_app()
@@ -29,7 +29,7 @@ async def find_contacts_for_person(
         person_collection
     ),
 ) -> List[app.udaconnect.models.Connection]:
-    return ConnectionService(
+    return ConnectionAggregator(
         person_collection=person_collection, location_collection=location_collection
     ).find_contacts(
         person_id=person_id,

@@ -11,6 +11,7 @@ pymongo = "^4.3.3"
 pydantic = "^1.10.7"
 fastapi = "^0.95.1"
 uvicorn = "^0.22.0"
+grpcio = "^1.54.2"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -19,7 +20,14 @@ black = "^23.3.0"
 isort = "^5.12.0"
 mypy = "^1.2.0"
 pip-audit = "^2.5.5"
+grpcio-tools = "^1.54.2"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[[tool.mypy.overrides]]
+module = [
+  "connection_tracker_api.*"
+]
+ignore_errors = true
