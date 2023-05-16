@@ -4,41 +4,85 @@ services:
     image: udaconnect-api
     build:
       context: modules/api
-    command: ["poetry" , "run", "uvicorn", "person_api:uda_app", "--host", "0.0.0.0", "--reload", "--port", "5000"]
+    depends_on:
+      - mongo
+    command: ["poetry" , "run", "uvicorn", "person_api:uda_app", "--host", "0.0.0.0", "--port", "5000"]
     ports:
       - "30001:5000"
     environment:
-      MONGO_CONNECTION_URI: mongodb://udaconnect_root:tinydogonaleash@localhost:27017/?authMechanism=DEFAULT
+      MONGO_CONNECTION_URI: mongodb://udaconnect_root:tinydogonaleash@mongo:27017/?authMechanism=DEFAULT
       MONGO_DB_NAME: geoconnections
+      CONNECTION_TRACKER_HOST: connection_tracker
+      CONNECTION_TRACKER_PORT: 3004
+      KAFKA_SERVER: kafka:9092
   location_service:
     image: udaconnect-api
     build:
       context: modules/api
-    command: ["poetry" , "run", "uvicorn", "location_api:uda_app", "--host", "0.0.0.0", "--reload", "--port", "5000"]
+    command: ["poetry" , "run", "uvicorn", "location_api:uda_app", "--host", "0.0.0.0", "--port", "5000"]
     ports:
       - "30002:5000"
     environment:
-      MONGO_CONNECTION_URI: mongodb://udaconnect_root:tinydogonaleash@localhost:27017/?authMechanism=DEFAULT
+      MONGO_CONNECTION_URI: mongodb://udaconnect_root:tinydogonaleash@mongo:27017/?authMechanism=DEFAULT
       MONGO_DB_NAME: geoconnections
+      CONNECTION_TRACKER_HOST: connection_tracker
+      CONNECTION_TRACKER_PORT: 3004
+      KAFKA_SERVER: kafka:9092
+  location_processor:
+    image: udaconnect-api
+    build:
+      context: modules/api
+    depends_on:
+      - mongo
+      - kafka
+    command: ["poetry" , "run", "python", "location_processor.py"]
+    environment:
+      MONGO_CONNECTION_URI: mongodb://udaconnect_root:tinydogonaleash@mongo:27017/?authMechanism=DEFAULT
+      MONGO_DB_NAME: geoconnections
+      CONNECTION_TRACKER_HOST: connection_tracker
+      CONNECTION_TRACKER_PORT: 3004
+      KAFKA_SERVER: kafka:9092
   connection_service:
     image: udaconnect-api
     build:
       context: modules/api
-    command: ["poetry" , "run", "uvicorn", "connection_api:uda_app", "--host", "0.0.0.0", "--reload", "--port", "5000"]
+    depends_on:
+      - mongo
+      - kafka
+    command: ["poetry" , "run", "uvicorn", "connection_api:uda_app", "--host", "0.0.0.0", "--port", "5000"]
     ports:
       - "30003:5000"
     environment:
-      MONGO_CONNECTION_URI: mongodb://udaconnect_root:tinydogonaleash@localhost:27017/?authMechanism=DEFAULT
+      MONGO_CONNECTION_URI: mongodb://udaconnect_root:tinydogonaleash@mongo:27017/?authMechanism=DEFAULT
       MONGO_DB_NAME: geoconnections
+      CONNECTION_TRACKER_HOST: connection_tracker
+      CONNECTION_TRACKER_PORT: 3004
+      KAFKA_SERVER: kafka:9092
+  connection_tracker:
+    image: udaconnect-api
+    build:
+      context: modules/api
+    depends_on:
+      - mongo
+    command: ["poetry" , "run", "python", "connection_tracker_api.py"]
+    ports:
+      - "30004:5000"
+    environment:
+      MONGO_CONNECTION_URI: mongodb://udaconnect_root:tinydogonaleash@mongo:27017/?authMechanism=DEFAULT
+      MONGO_DB_NAME: geoconnections
+      CONNECTION_TRACKER_HOST: connection_tracker
+      CONNECTION_TRACKER_PORT: 3004
+      KAFKA_SERVER: kafka:9092
   frontend:
     image: udaconnect-app
     build:
       context: modules/frontend
     environment:
-      REACT_APP_API_BASE_URL: http://localhost:30001
+      REACT_APP_API_PERSON_BASE_URL: http://localhost:30001
+      REACT_APP_API_CONNECTION_BASE_URL: http://localhost:30003
     ports:
       - "30000:3000"
-  mongodb_udaconnect:
+  mongo:
     image: mongo:latest
     environment:
       MONGO_INITDB_ROOT_USERNAME: udaconnect_root

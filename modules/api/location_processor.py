@@ -29,7 +29,7 @@ if __name__ == "__main__":
         app.config.MONGO_CONNECTION_URI
     )
     mongo_db = mongo_client[app.config.MONGO_DB_NAME]
-    location_collection = mongo_db["person"]
+    location_collection = mongo_db["location"]
 
     location_processor = LocationProcessor(location_collection=location_collection)
 

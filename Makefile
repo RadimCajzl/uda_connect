@@ -14,7 +14,7 @@ docker-run: docker-build
 	docker compose up
 
 docker-run-mongo:
-	docker compose up -d mongodb_udaconnect
+	docker compose up -d mongo
 
 docker-run-kafka:
 	docker compose up -d kafka

@@ -31,7 +31,7 @@ class ConnectionTracker:
             )
             for other_person_location in self.location_collection.find(
                 {
-                    "id": {"$ne": location.person_id},
+                    "person_id": {"$ne": location.person_id},
                     "creation_time": {"$lt": end_date, "$gte": start_date},
                     "coordinates": {
                         "$near": {
