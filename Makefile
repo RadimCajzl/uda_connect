@@ -14,7 +14,10 @@ docker-run: docker-build
 	docker compose up
 
 docker-run-mongo:
-	docker compose start mongodb_udaconnect
+	docker compose up -d mongodb_udaconnect
+
+docker-run-kafka:
+	docker compose up -d kafka
 
 kind-udaconnect: docker-build kind-udaconnect-clean
 	# push docker images into kind cluster

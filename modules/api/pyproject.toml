@@ -12,6 +12,7 @@ pydantic = "^1.10.7"
 fastapi = "^0.95.1"
 uvicorn = "^0.22.0"
 grpcio = "^1.54.2"
+kafka-python = "^2.0.2"
 
 
 [tool.poetry.group.dev.dependencies]

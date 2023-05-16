@@ -23,6 +23,7 @@ To do so, ***you will refactor this application into a microservice architecture
 The project has been set up such that you should be able to have the project up and running with Kubernetes.
 
 **TODO: add a section about kind-based setup.**
+**TODO: local dev/debug setup**: docker-compose mongo and kafka
 
 ### Prerequisites
 

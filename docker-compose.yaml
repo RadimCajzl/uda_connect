@@ -44,9 +44,20 @@ services:
       MONGO_INITDB_ROOT_USERNAME: udaconnect_root
       MONGO_INITDB_ROOT_PASSWORD: tinydogonaleash
     ports:
-      - 27017:27017
+      - "27017:27017"
     volumes:
       - mongodb_data_udaconnect:/data/db
+  kafka:
+    image: docker.io/bitnami/kafka:3.4
+    ports:
+      - "9094:9094"
+    environment:
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - BITNAMI_DEBUG=yes
 
 volumes:
   mongodb_data_udaconnect:

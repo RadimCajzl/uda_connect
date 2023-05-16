@@ -1,3 +1,4 @@
+import logging
 import os
 
 MONGO_CONNECTION_URI = os.environ["MONGO_CONNECTION_URI"]
@@ -8,4 +9,8 @@ CONNECTION_TRACKER_GRPC_URL = (
     f"{os.environ['CONNECTION_TRACKER_HOST']}:{os.environ['CONNECTION_TRACKER_PORT']}"
 )
 
+KAFKA_SERVER = os.environ["KAFKA_SERVER"]
+KAFKA_TOPIC = "locations"
+
 DEBUG = os.getenv("DEBUG") == "True"
+LOG_LEVEL = logging.DEBUG if DEBUG else logging.INFO
