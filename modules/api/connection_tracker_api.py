@@ -54,17 +54,18 @@ class ConnectionTrackerAPI(
         return iter(grpcio_connections)
 
 
-server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
-connection_tracker_api.connection_pb2_grpc.add_ConnectionTrackerServicer_to_server(
-    ConnectionTrackerAPI(), server
-)
+if __name__ == "__main__":
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
+    connection_tracker_api.connection_pb2_grpc.add_ConnectionTrackerServicer_to_server(
+        ConnectionTrackerAPI(), server
+    )
 
-print(f"Server starting on port {app.config.CONNECTION_TRACKER_PORT}.")
-server.add_insecure_port(f"[::]:{app.config.CONNECTION_TRACKER_PORT}")
-server.start()
-# Keep thread alive
-try:
-    while True:
-        time.sleep(86400)
-except KeyboardInterrupt:
-    server.stop(0)
+    print(f"Server starting on port {app.config.CONNECTION_TRACKER_PORT}.")
+    server.add_insecure_port(f"[::]:{app.config.CONNECTION_TRACKER_PORT}")
+    server.start()
+    # Keep thread alive
+    try:
+        while True:
+            time.sleep(86400)
+    except KeyboardInterrupt:
+        server.stop(0)
