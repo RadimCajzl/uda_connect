@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime as dt
-from typing import Tuple
+from typing import Dict, Literal, Tuple
 
 from pydantic import BaseModel
 
@@ -71,3 +71,14 @@ class Connection(BaseModel):
             location=Location.from_grpc(grpc_request.location),
             person=Person.from_grpc(grpc_request.person),
         )
+
+
+class ConnectionCountInterval(BaseModel):
+    count: int
+    start: dt.datetime
+    duration: dt.timedelta
+
+
+class ApiMetrics(BaseModel):
+    status: Literal["healthy"]
+    intervals: Dict[Literal["current", "previous"], ConnectionCountInterval | None]
