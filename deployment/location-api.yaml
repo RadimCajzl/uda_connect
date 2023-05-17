@@ -31,9 +31,18 @@ spec:
         service: location-api
     spec:
       containers:
-      - image: udacity/nd064-location-api:latest
+      - image: docker.io/library/udaconnect-api:latest
         name: location-api
         imagePullPolicy: Always
+        command:
+        - "poetry"
+        - "run"
+        - "uvicorn"
+        - "location_api:uda_app"
+        - "--host"
+        - "0.0.0.0"
+        - "--port"
+        - "5000"
         env:
         - name: MONGO_CONNECTION_URI
           valueFrom:
@@ -45,4 +54,10 @@ spec:
             configMapKeyRef:
               name: db-env
               key: MONGO_DB_NAME
+        - name: CONNECTION_TRACKER_HOST
+          value: "connection-tracker"
+        - name: CONNECTION_TRACKER_PORT
+          value: "3004"
+        - name: KAFKA_SERVER
+          value: "kafka:9092"
       restartPolicy: Always

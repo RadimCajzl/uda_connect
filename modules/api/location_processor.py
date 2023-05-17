@@ -39,6 +39,9 @@ if __name__ == "__main__":
     kafka_location_consumer = KafkaConsumer(bootstrap_servers=[app.config.KAFKA_SERVER])
     kafka_location_consumer.subscribe(app.config.KAFKA_TOPIC)
 
+    logging.info(
+        f"Polling Kafka server {app.config.KAFKA_SERVER}, topic {app.config.KAFKA_TOPIC}."
+    )
     while True:
         location_message = kafka_location_consumer.poll(timeout_ms=POLLING_TIMEOUT_MS)
 

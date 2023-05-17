@@ -25,13 +25,23 @@ nodes:
     listenAddress: "0.0.0.0"
     protocol: tcp
   ## ConnectionService:
-  - containerPort: 30002
-    hostPort: 30002
+  - containerPort: 30003
+    hostPort: 30003
+    listenAddress: "0.0.0.0"
+    protocol: tcp
+  ## ConnectionTracker:
+  - containerPort: 30004
+    hostPort: 30004
     listenAddress: "0.0.0.0"
     protocol: tcp
   ## Database:
   - containerPort: 30010
     hostPort: 30010
+    listenAddress: "0.0.0.0"
+    protocol: tcp
+  ## Kafka:
+  - containerPort: 30020
+    hostPort: 30020
     listenAddress: "0.0.0.0"
     protocol: tcp
 - role: worker
