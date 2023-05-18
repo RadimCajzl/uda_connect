@@ -11,13 +11,11 @@ Management loved the POC so now that there is buy-in, we want to enhance this ap
 To do so, ***you will refactor this application into a microservice architecture using message passing techniques that you have learned in this course***. It’s easy to get lost in the countless optimizations and changes that can be made: your priority should be to approach the task as an architect and refactor the application into microservices. File organization, code linting -- these are important but don’t affect the core functionality and can possibly be tagged as TODO’s for now!
 
 ### Technologies
-* [Flask](https://flask.palletsprojects.com/en/1.1.x/) - API webserver
-* [SQLAlchemy](https://www.sqlalchemy.org/) - Database ORM
-* [PostgreSQL](https://www.postgresql.org/) - Relational database
-* [PostGIS](https://postgis.net/) - Spatial plug-in for PostgreSQL enabling geographic queries]
-* [Vagrant](https://www.vagrantup.com/) - Tool for managing virtual deployed environments
-* [VirtualBox](https://www.virtualbox.org/) - Hypervisor allowing you to run multiple operating systems
-* [K3s](https://k3s.io/) - Lightweight distribution of K8s to easily develop against a local cluster
+* [Python Poetry](https://python-poetry.org/) - holistic venv management for Python
+* [FastAPI](https://fastapi.tiangolo.com/lo/) - async REST framework for Python
+* [MongoDB](https://www.mongodb.com/) - cloud native NoSQL database
+* [Kind](https://kind.sigs.k8s.io/) - Kubernetes-in-Docker, "small" Kubernetes cluster suitable for development.
+* [GNU Make](https://www.gnu.org/software/make/) - file generation flow control.
 
 ## Running the app
 The project has been set up such that you should be able to have the project up and running with Kubernetes.
@@ -28,83 +26,70 @@ The project has been set up such that you should be able to have the project up 
 ### Prerequisites
 
 We will be installing the tools that we'll need to use for getting our environment set up properly.
-1. [Install Docker](https://docs.docker.com/get-docker/)
-2. [Set up a DockerHub account](https://hub.docker.com/)
-3. [Set up `kubectl`](https://rancher.com/docs/rancher/v2.x/en/cluster-admin/cluster-access/kubectl/)
-4. [Install VirtualBox](https://www.virtualbox.org/wiki/Downloads) with at least version 6.0
-5. [Install Vagrant](https://www.vagrantup.com/docs/installation) with at least version 2.0
+**It is highly recommended to use Unix-based system - e. g. Linux, Mac or Windows Subsystem for Linux.** 
+**Native-Windows setup was not tested and is not supported.**
 
-### Environment Setup
-To run the application, you will need a K8s cluster running locally and to interface with it via `kubectl`. We will be using Vagrant with VirtualBox to run K3s.
+1. [Install Docker](https://docs.docker.com/get-docker/). Various options are available, from Docker
+   Desktop to raw docker-deamon installation.
+2. [Install kind](https://kind.sigs.k8s.io/docs/user/quick-start).
+3. [Set up `kubectl`](https://rancher.com/docs/rancher/v2.x/en/cluster-admin/cluster-access/kubectl/).
+4. Install GNU Make. Please refer to your system's package manager. (E. g., on Ubuntu/Debian based
+   Linux distributions, use `apt install make`.) On Windows, either install Ubuntu in Windows Subsystem
+   for linux, or check the following Stack Overflow question:
+   [How to install and use "make" in Windows](https://stackoverflow.com/questions/32127524/how-to-install-and-use-make-in-windows).
+   Native-Windows setup has not been tested and is not supported.
+5. (Optional for debugging/development.) Install Python3.10. Please refer to your system's package manager. (E. g., on Ubuntu 22.04 3.10 is the
+   default Python version, so it is sufficient to `apt install python3`. On other versions, please scroll
+   down to "Use Deadsnakes PPA to Install Python 3 on Ubuntu" in
+   [How to Install Python in Ubuntu](https://www.makeuseof.com/install-python-ubuntu/) and follow the
+   instructions. Then `apt install python3.10`.)
+6. (Optional for debugging/development.) [Install Python Poetry](https://python-poetry.org/docs/#installation).
 
-#### Initialize K3s
-In this project's root, run `vagrant up`.
-```bash
-$ vagrant up
-```
-The command will take a while and will leverage VirtualBox to load an [openSUSE](https://www.opensuse.org/) OS and automatically install [K3s](https://k3s.io/). When we are taking a break from development, we can run `vagrant suspend` to conserve some ouf our system's resources and `vagrant resume` when we want to bring our resources back up. Some useful vagrant commands can be found in [this cheatsheet](https://gist.github.com/wpscholar/a49594e2e2b918f4d0c4).
-
-#### Set up `kubectl`
-After `vagrant up` is done, you will SSH into the Vagrant environment and retrieve the Kubernetes config file used by `kubectl`. We want to copy the contents of this file into our local environment so that `kubectl` knows how to communicate with the K3s cluster.
-```bash
-$ vagrant ssh
-```
-You will now be connected inside of the virtual OS. Run `sudo cat /etc/rancher/k3s/k3s.yaml` to print out the contents of the file. You should see output similar to the one that I've shown below. Note that the output below is just for your reference: every configuration is unique and you should _NOT_ copy the output I have below.
-
-Copy the contents from the output issued from your own command into your clipboard -- we will be pasting it somewhere soon!
-```bash
-$ sudo cat /etc/rancher/k3s/k3s.yaml
-
-apiVersion: v1
-clusters:
-- cluster:
-    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJWekNCL3FBREFnRUNBZ0VBTUFvR0NDcUdTTTQ5QkFNQ01DTXhJVEFmQmdOVkJBTU1HR3N6Y3kxelpYSjIKWlhJdFkyRkFNVFU1T1RrNE9EYzFNekFlRncweU1EQTVNVE13T1RFNU1UTmFGdzB6TURBNU1URXdPVEU1TVROYQpNQ014SVRBZkJnTlZCQU1NR0dzemN5MXpaWEoyWlhJdFkyRkFNVFU1T1RrNE9EYzFNekJaTUJNR0J5cUdTTTQ5CkFnRUdDQ3FHU000OUF3RUhBMElBQk9rc2IvV1FEVVVXczJacUlJWlF4alN2MHFseE9rZXdvRWdBMGtSN2gzZHEKUzFhRjN3L3pnZ0FNNEZNOU1jbFBSMW1sNXZINUVsZUFOV0VTQWRZUnhJeWpJekFoTUE0R0ExVWREd0VCL3dRRQpBd0lDcERBUEJnTlZIUk1CQWY4RUJUQURBUUgvTUFvR0NDcUdTTTQ5QkFNQ0EwZ0FNRVVDSVFERjczbWZ4YXBwCmZNS2RnMTF1dCswd3BXcWQvMk5pWE9HL0RvZUo0SnpOYlFJZ1JPcnlvRXMrMnFKUkZ5WC8xQmIydnoyZXpwOHkKZ1dKMkxNYUxrMGJzNXcwPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
-    server: https://127.0.0.1:6443
-  name: default
-contexts:
-- context:
-    cluster: default
-    user: default
-  name: default
-current-context: default
-kind: Config
-preferences: {}
-users:
-- name: default
-  user:
-    password: 485084ed2cc05d84494d5893160836c9
-    username: admin
-```
-Type `exit` to exit the virtual OS and you will find yourself back in your computer's session. Create the file (or replace if it already exists) `~/.kube/config` and paste the contents of the `k3s.yaml` output here.
-
-Afterwards, you can test that `kubectl` works by running a command like `kubectl describe services`. It should not return any errors.
+Steps 5. and 6. are required only if you want to run the code outside Docker/Kubernetes (e. g.
+for interactive code debugging in some IDE.)
 
 ### Steps
-1. `kubectl apply -f deployment/db-configmap.yaml` - Set up environment variables for the pods
-2. `kubectl apply -f deployment/db-secret.yaml` - Set up secrets for the pods
-3. `kubectl apply -f deployment/postgres.yaml` - Set up a Postgres database running PostGIS
-4. `kubectl apply -f deployment/udaconnect-api.yaml` - Set up the service and deployment for the API
-5. `kubectl apply -f deployment/udaconnect-app.yaml` - Set up the service and deployment for the web app
-6. `sh scripts/run_db_command.sh <POD_NAME>` - Seed your database against the `postgres` pod. (`kubectl get pods` will give you the `POD_NAME`)
-
-Manually applying each of the individual `yaml` files is cumbersome but going through each step provides some context on the content of the starter project. In practice, we would have reduced the number of steps by running the command against a directory to apply of the contents: `kubectl apply -f deployment/`.
-
-Note: The first time you run this project, you will need to seed the database with dummy data. Use the command `sh scripts/run_db_command.sh <POD_NAME>` against the `postgres` pod. (`kubectl get pods` will give you the `POD_NAME`). Subsequent runs of `kubectl apply` for making changes to deployments or services shouldn't require you to seed the database again!
+1. `cd` into project directory.
+2. Make sure docker daemon is running. (E. g. start Docker desktop.)
+3. `make kind-init` - initialize Kind-Kubernetes cluster.
+4. `make kind-udaconnect` - deploy all services to Kind cluster.
+   **This command may take up to 15-30min to finish, depending on your network speed.**
+   
+   Feel free to check `kind-udaconnect` target in Makefile to see what commands
+   are executed. The following actions are done:
+    - Docker images for frontend and backends are built. This includes downloading
+      all dependencies.
+    - MongoDB and Kafka services are deployed to Kind cluster. This includes
+      downloading MongoDB and Kafka Docker images.
+    - Waiting for MongoDB and Kafka to be ready.
+    - All Kubernetes manifests for UdaConnect (services & frontend) are applied.
+    - Waiting for `person-api` to be ready and populating the database with initial
+      data.
 
 ### Verifying it Works
-Once the project is up and running, you should be able to see 3 deployments and 3 services in Kubernetes:
-`kubectl get pods` and `kubectl get services` - should both return `udaconnect-app`, `udaconnect-api`, and `postgres`
+Once the project is up and running, you should be able to see 8 deployments and 8 services in Kubernetes:
+`kubectl get pods` and `kubectl get services` - should both return `udaconnect-app`; `person-api`, `location-api`,
+`connection-api`, `connection-tracker`, `location-processor`; `mongo` and `kafka`.
 
 
 These pages should also load on your web browser:
-* `http://localhost:30001/` - OpenAPI Documentation
-* `http://localhost:30001/api/` - Base path for API
+* `http://localhost:30001/docs` - OpenAPI Documentation for PersonAPI
+* `http://localhost:30002/docs` - OpenAPI Documentation for LocationAPI
+* `http://localhost:30003/docs` - OpenAPI Documentation for ConnectionAPI
 * `http://localhost:30000/` - Frontend ReactJS Application
 
 #### Deployment Note
-You may notice the odd port numbers being served to `localhost`. [By default, Kubernetes services are only exposed to one another in an internal network](https://kubernetes.io/docs/concepts/services-networking/service/). This means that `udaconnect-app` and `udaconnect-api` can talk to one another. For us to connect to the cluster as an "outsider", we need to a way to expose these services to `localhost`.
+You may notice the odd port numbers being served to `localhost`.
+[By default, Kubernetes services are only exposed to one another in an internal network](https://kubernetes.io/docs/concepts/services-networking/service/).
+This means that `udaconnect-app` and `*-api` can talk to one another. For us to connect to the cluster as an "outsider",
+we need to a way to expose these services to `localhost`.
 
 Connections to the Kubernetes services have been set up through a [NodePort](https://kubernetes.io/docs/concepts/services-networking/service/#nodeport). (While we would use a technology like an [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) to expose our Kubernetes services in deployment, a NodePort will suffice for development.)
+
+Moreover, you may notice we exposed MongoDB and Kafka as completely insecured services, e. g. with neither authentication
+nor firewall rules to protect it from attackers. This is acceptable only for local development. If deployed online,
+I would expect to use infrastructure-provider-native Kafka and Mongo deployments, which would also integrate proper
+authentication mechanism native for given provider. (E. g. Azure Active Domain in MS Azure cloud.)
 
 ## Development
 
@@ -158,4 +143,3 @@ Your architecture diagram should focus on the services and how they talk to one 
 
 ## Tips
 * We can access a running Docker container using `kubectl exec -it <pod_id> sh`. From there, we can `curl` an endpoint to debug network issues.
-* The starter project uses Python Flask. Flask doesn't work well with `asyncio` out-of-the-box. Consider using `multiprocessing` to create threads for asynchronous behavior in a standard Flask application.

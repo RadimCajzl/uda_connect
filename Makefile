@@ -55,8 +55,8 @@ kind-udaconnect: docker-build kind-udaconnect-clean
 
 	## Populate database with initial data:
 	# wait for Mongo & API to be ready:
-	kubectl wait deployment person-api --for condition=Available=True --timeout=300s
-	kubectl wait deployment mongo --for condition=Available=True --timeout=300s
+	kubectl wait deployment person-api --for condition=Available=True --timeout=900s
+	kubectl wait deployment mongo --for condition=Available=True --timeout=900s
 
 	# PoC-phase has data and init-db script inside API container.
 	# TODO: in production, this should be a separate job.
