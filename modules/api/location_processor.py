@@ -6,10 +6,10 @@ import pymongo.collection
 import pymongo.errors
 from kafka import KafkaConsumer  # type: ignore
 
-import app.config
-from app.udaconnect.models import Location
+import base.config
+from base.models import Location
 
-logging.basicConfig(level=app.config.LOG_LEVEL)
+logging.basicConfig(level=base.config.LOG_LEVEL)
 
 POLLING_TIMEOUT_MS = 1000
 SLEEP_INTERVAL_S = 1  # TODO: in production, change to higher value.
@@ -26,9 +26,9 @@ class LocationProcessor:
 
 if __name__ == "__main__":
     mongo_client: pymongo.MongoClient = pymongo.MongoClient(
-        app.config.MONGO_CONNECTION_URI
+        base.config.MONGO_CONNECTION_URI
     )
-    mongo_db = mongo_client[app.config.MONGO_DB_NAME]
+    mongo_db = mongo_client[base.config.MONGO_DB_NAME]
     location_collection = mongo_db["location"]
 
     location_processor = LocationProcessor(location_collection=location_collection)
@@ -36,11 +36,13 @@ if __name__ == "__main__":
     # Infinite Kafka consumer loop, inspired by
     # https://stackoverflow.com/questions/66101466/python-kafka-keep-polling-topic-infinitely
 
-    kafka_location_consumer = KafkaConsumer(bootstrap_servers=[app.config.KAFKA_SERVER])
-    kafka_location_consumer.subscribe(app.config.KAFKA_TOPIC)
+    kafka_location_consumer = KafkaConsumer(
+        bootstrap_servers=[base.config.KAFKA_SERVER]
+    )
+    kafka_location_consumer.subscribe(base.config.KAFKA_TOPIC)
 
     logging.info(
-        f"Polling Kafka server {app.config.KAFKA_SERVER}, topic {app.config.KAFKA_TOPIC}."
+        f"Polling Kafka server {base.config.KAFKA_SERVER}, topic {base.config.KAFKA_TOPIC}."
     )
     while True:
         location_message = kafka_location_consumer.poll(timeout_ms=POLLING_TIMEOUT_MS)

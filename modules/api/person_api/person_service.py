@@ -2,7 +2,7 @@ from typing import List
 
 import pymongo.collection
 
-from app.udaconnect.models import Person
+from base.models import Person
 
 
 class PersonService:
@@ -10,7 +10,7 @@ class PersonService:
         self.person_collection = person_collection
 
     def create(self, person: Person) -> Person:
-        self.person_collection.insert_one(person)
+        self.person_collection.insert_one(person.dict())
 
         return person
 

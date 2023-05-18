@@ -4,10 +4,9 @@ from typing import List
 import grpc  # type: ignore
 import pymongo.collection
 
-import app.config
-import connection_tracker_api.connection_pb2
-import connection_tracker_api.connection_pb2_grpc
-from app.udaconnect.models import Connection, Location
+import base.config
+import connection_tracker_grpc.connection_pb2_grpc
+from base.models import Connection, Location
 
 
 class ConnectionAggregator:
@@ -41,10 +40,10 @@ class ConnectionAggregator:
         ]
 
         connection_tracker_channel = grpc.insecure_channel(
-            app.config.CONNECTION_TRACKER_GRPC_URL
+            base.config.CONNECTION_TRACKER_GRPC_URL
         )
         connection_tracker_client = (
-            connection_tracker_api.connection_pb2_grpc.ConnectionTrackerStub(
+            connection_tracker_grpc.connection_pb2_grpc.ConnectionTrackerStub(
                 connection_tracker_channel
             )
         )
@@ -53,7 +52,7 @@ class ConnectionAggregator:
         # TODO: this for cycle should be parallelized for better performance.
         for this_person_location in locations:
             grpc_connections_one_location = connection_tracker_client.Get(
-                connection_tracker_api.connection_pb2.ConnectionRequest(  # type: ignore
+                connection_tracker_grpc.connection_pb2.ConnectionRequest(  # type: ignore
                     location=this_person_location.to_grpc(),
                     start_date=start_date.isoformat(),
                     end_date=end_date.isoformat(),

@@ -3,7 +3,7 @@ from typing import List
 
 import pymongo.collection
 
-from app.udaconnect.models import Connection, Location, Person
+from base.models import Connection, Location, Person
 
 
 class ConnectionTracker:
