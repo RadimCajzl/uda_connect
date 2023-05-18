@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: connection-tracker
+  name: connection-tracker
+spec:
+  ports:
+  - name: "3004"
+    port: 3004
+    targetPort: 3004
+  selector:
+    service: connection-tracker
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: connection-tracker
+  name: connection-tracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: connection-tracker
+  template:
+    metadata:
+      labels:
+        service: connection-tracker
+    spec:
+      containers:
+      - image: docker.io/library/udaconnect-api:latest
+        name: connection-tracker
+        imagePullPolicy: Always
+        command:
+        - "poetry"
+        - "run"
+        - "python"
+        - "connection_tracker_api.py"
+        env:
+        - name: MONGO_CONNECTION_URI
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: MONGO_CONNECTION_URI
+        - name: MONGO_DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: MONGO_DB_NAME
+        - name: CONNECTION_TRACKER_HOST
+          value: "connection-tracker"
+        - name: CONNECTION_TRACKER_PORT
+          value: "3004"
+        - name: KAFKA_SERVER
+          value: "kafka:9092"
+      restartPolicy: Always

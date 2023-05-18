@@ -9,12 +9,39 @@ nodes:
 - role: control-plane
   # UdaConnect:
   extraPortMappings:
+  ## Frontend:
+  - containerPort: 30000
+    hostPort: 30000
+    listenAddress: "0.0.0.0"
+    protocol: tcp
+  ## PersonService
   - containerPort: 30001
     hostPort: 30001
     listenAddress: "0.0.0.0"
     protocol: tcp
-  - containerPort: 30000
-    hostPort: 30000
+  ## LocationService:
+  - containerPort: 30002
+    hostPort: 30002
+    listenAddress: "0.0.0.0"
+    protocol: tcp
+  ## ConnectionService:
+  - containerPort: 30003
+    hostPort: 30003
+    listenAddress: "0.0.0.0"
+    protocol: tcp
+  ## ConnectionTracker:
+  - containerPort: 30004
+    hostPort: 30004
+    listenAddress: "0.0.0.0"
+    protocol: tcp
+  ## Database:
+  - containerPort: 30010
+    hostPort: 30010
+    listenAddress: "0.0.0.0"
+    protocol: tcp
+  ## Kafka:
+  - containerPort: 30020
+    hostPort: 30020
     listenAddress: "0.0.0.0"
     protocol: tcp
 - role: worker

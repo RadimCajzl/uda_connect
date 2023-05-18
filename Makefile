@@ -13,6 +13,12 @@ docker-build:
 docker-run: docker-build
 	docker compose up
 
+docker-run-mongo:
+	docker compose up -d mongo
+
+docker-run-kafka:
+	docker compose up -d kafka
+
 kind-udaconnect: docker-build kind-udaconnect-clean
 	# push docker images into kind cluster
 	kind load docker-image udaconnect-api:latest
@@ -23,36 +29,45 @@ kind-udaconnect: docker-build kind-udaconnect-clean
 	kubectl apply --wait=true -f deployment/db-configmap.yaml
 	kubectl apply --wait=true -f deployment/db-secret.yaml
 
-	## Deploy PostgreSQL
-	kubectl apply --wait=true -f deployment/postgres.yaml
+	## Deploy MongoDB && Kafka
+	kubectl apply --wait=true -f deployment/mongo.yaml
+	kubectl apply --wait=true -f deployment/kafka.yaml
+	
+	# Wait for Kafka to start
+	# (microservices require Kafka on start-time already.)
+	kubectl wait deployment kafka --for condition=Available=True --timeout=300s
 
 	# Set up the service and deployment for the API
-	#  - replace image names with local defaults
 	#  - replace image pull policy. For kind deployments, we already loaded
 	#   the images to the cluster. If imagePullPolicy hints to check for
 	#   more recent image version, kind would try to find the package
 	#   in public Container Registries, which we don't want to use
 	#   for fully local dev-setup.)
-	cat deployment/udaconnect-api.yaml | \
-		sed 's/imagePullPolicy: Always/imagePullPolicy: Never/' | \
-		sed 's@image: udacity/nd064-udaconnect-api:latest@image: docker.io/library/udaconnect-api:latest@' | \
-		kubectl apply --wait=true -f -
-	cat deployment/udaconnect-app.yaml | \
-		sed 's/imagePullPolicy: Always/imagePullPolicy: Never/' | \
-		sed 's@image: udacity/nd064-udaconnect-app:latest@image: docker.io/library/udaconnect-app:latest@' | \
-		kubectl apply --wait=true -f -
+
+	## Deploy Backend microservices & frontend:
+	for manifest in person-api connection-api connection-tracker location-api location-processor udaconnect-app; do\
+		echo ; \
+		echo deploying $$manifest.; \
+		cat deployment/$$manifest.yaml | \
+			sed 's/imagePullPolicy: Always/imagePullPolicy: Never/' | \
+			kubectl apply --wait=true -f -; \
+	done
 
 	## Populate database with initial data:
-	sleep 2
-	sh scripts/run_db_command.sh $$(kubectl get pods --selector=app=postgres --output=name)
+	# wait for Mongo & API to be ready:
+	kubectl wait deployment person-api --for condition=Available=True --timeout=900s
+	kubectl wait deployment mongo --for condition=Available=True --timeout=900s
+
+	# PoC-phase has data and init-db script inside API container.
+	# TODO: in production, this should be a separate job.
+	kubectl exec service/person-api -- poetry run python /api/init_db.py
+
 
 make kind-udaconnect-clean:
-	kubectl delete --ignore-not-found=true --wait=true \
-		service/udaconnect-api  \
-		service/udaconnect-app  \
-		service/postgres \
-		deployment.apps/udaconnect-api  \
-		deployment.apps/udaconnect-app \
-		deployment.apps/postgres 
+	for manifest in person-api connection-api connection-tracker location-api location-processor udaconnect-app kafka mongo; do\
+		kubectl delete --ignore-not-found=true --wait=true service/$$manifest deployment.apps/$$manifest; \
+	done
+	
+	docker exec kind-worker rm -rf '/mnt/data/*'
 
 	

@@ -31,7 +31,7 @@ spec:
         service: udaconnect-app
     spec:
       containers:
-      - image: udacity/nd064-udaconnect-app:latest
+      - image: docker.io/library/udaconnect-app:latest
         name: udaconnect-app
         imagePullPolicy: Always
         resources:
@@ -41,4 +41,9 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "256m"
+        env:
+        - name: REACT_APP_API_PERSON_BASE_URL
+          value: "http://localhost:30001"
+        - name: REACT_APP_API_CONNECTION_BASE_URL
+          value: "http://localhost:30003"
       restartPolicy: Always

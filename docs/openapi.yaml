@@ -1,0 +1,58 @@
+openapi: 3.0.2
+info:
+  title: ConnectionAPI Metrics endpoint
+  version: 0.1.0
+paths:
+  /metrics:
+    get:
+      summary: Metrics
+      description: Returns statistics with recent connections.
+      operationId: metrics_metrics_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiMetrics'
+components:
+  schemas:
+    ApiMetrics:
+      title: ApiMetrics
+      required:
+        - status
+        - connection_count_intervals
+      type: object
+      properties:
+        status:
+          title: Status
+          enum:
+            - healthy
+          type: string
+        connection_count_intervals:
+          title: Connection Count Intervals
+          type: object
+          properties:
+            current:
+              $ref: '#/components/schemas/ConnectionCountInterval'
+            previous:
+              $ref: '#/components/schemas/ConnectionCountInterval'
+    ConnectionCountInterval:
+      title: ConnectionCountInterval
+      required:
+        - count
+        - start
+        - duration
+      type: object
+      properties:
+        count:
+          title: Count
+          type: integer
+        start:
+          title: Start
+          type: string
+          format: date-time
+        duration:
+          title: Duration
+          type: number
+          format: time-delta
