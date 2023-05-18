@@ -37,13 +37,7 @@ def _swap_connection_intervals_if_needed() -> None:
         _connection_counters["current"].start
         < dt.datetime.now() - _connection_counters["current"].duration
     ):
-        (
-            _connection_counters["current"],
-            _connection_counters["previous"],
-        ) = (
-            _connection_counters["previous"],
-            _connection_counters["current"],
-        )
+        _connection_counters["previous"] = _connection_counters["current"]
         _connection_counters["current"] = app.udaconnect.models.ConnectionCountInterval(
             count=0, start=dt.datetime.now(), duration=CONNECTION_COUNTER_RESET_INTERVAL
         )
@@ -84,8 +78,8 @@ async def find_contacts_for_person(
 
 @uda_app.get("/metrics", response_model=app.udaconnect.models.ApiMetrics)
 async def metrics() -> app.udaconnect.models.ApiMetrics:
-    """Returns number of connections from previous interval."""
+    """Returns statistics with recent connections."""
     global _connection_counters
     return app.udaconnect.models.ApiMetrics(
-        status="healthy", intervals=_connection_counters
+        status="healthy", connection_count_intervals=_connection_counters
     )

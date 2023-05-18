@@ -81,4 +81,6 @@ class ConnectionCountInterval(BaseModel):
 
 class ApiMetrics(BaseModel):
     status: Literal["healthy"]
-    intervals: Dict[Literal["current", "previous"], ConnectionCountInterval | None]
+    connection_count_intervals: Dict[
+        Literal["current", "previous"], ConnectionCountInterval | None
+    ]
