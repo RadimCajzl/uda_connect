@@ -7,18 +7,18 @@ to avoid risk of overengineering the app.
 
 However for the sake of task I assume the following:
  - UdaConnnect app is expected to be massively used, collecting massive amout of data.
-   (As in, UdaConnect automatically collecting and sending data with some default service
+   (As in, UdaConnect automatically collecting and sending data with some default app
    installed on phones by large user base.)
  - The business managing the app has hired several teams to take care of the app and
    infrastructure behind.
  - Owner of the app launched massive advertising campaign, which is expected to be
-   successfull in bringing in substantial number of new users.
+   bring in substantial number of new users.
 
 With this in mind, we need to propose a truly scalable architecture. As mentioned, if
 these assumptions are not met, we would overengineer UdaConnect - e. g. such infrastructure
 would be a nightmare to maintain in small team of you-do-every-task engineers, and would
 be an overkill if the real usage is limited to a few hundred regular guests at handful
-of evenets.
+of events.
 
 ## Changes in backend Python code
 
@@ -80,8 +80,7 @@ seem to allow such flexibility.
 
 The backend code contains no tests. Again, as an architect, I would not let any code
 without automated testing run on infrastructure I am responsible for. Due to limited
-time for the project, this won't be a priority, however I plan to include tests for
-any new functionalities.
+time for the project, I won't add them here.
 
 ## Required changes in Frontend code
 
@@ -98,6 +97,8 @@ This needs to be fixed.
 ### Summary
  - API changes:
    - GET /locations will be discontinued. Current app has no use for this endpoint.
+     With expected *illions of locations it does not make sense to list them all
+     anyway.
    - Current monolithic controller will be split into LocationAPI, PersonAPI and
      ConnectionAPI. Corresponding endpoints will keep their structure.
  - Data to be stored in MongoDB. PostGIS procedures to be replaced by MongoDB
@@ -108,7 +109,6 @@ This needs to be fixed.
    calculations and aggregate them to produce "connection-report" for single person.
  - LocationService will be split into three parts - LocationCollector which will continue
    to receive new location data, and LocationProcessor which will save the data to MongoDB.
-   LocationService will keep functionality to retrieve all existing people-location data.
 
    Kafka queue will be used between LocationCollector and LocationProcessor - LocationCollector
    will push data to queue, LocationProcessor will listen for new locations and store them to
@@ -117,7 +117,7 @@ This needs to be fixed.
  - PersonService will be kept as-is once switched to MongoDB. Possible future (out of scope)
    improvements should support pagination of all people-data.
 
- - All new services will implement metrics REST endpoints, which are implemented for future
+ - ConnectionService will implement metrics REST endpoint, which is implemented for future
    housekeeping purposes. For now, these will be used just for monitoring. If the real usage
    varies over time, we will use these metrics for Kubernetes pod autoscaler (using custom
    metrics API). Custom Kubernetes autoscaling metrics is beyond scope of current refactoring.
@@ -151,7 +151,7 @@ ConnectionAggregator will:
  - replace the original ConnectionService API. Frontend will talk to ConnectionAggregator when
    querying possible connections of single person.
  - query all location-ids for given person within given timeframe.
- - for each location-ids of given person, call ConnectionTracker to determine possible connections
+ - for each location-id of given person, call ConnectionTracker to determine possible connections
    and collect the results.
 
 Large numbers of calls between ConnectionTracker and ConnectionAggregator can be expected,
