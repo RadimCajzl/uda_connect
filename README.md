@@ -20,9 +20,6 @@ To do so, ***you will refactor this application into a microservice architecture
 ## Running the app
 The project has been set up such that you should be able to have the project up and running with Kubernetes.
 
-**TODO: add a section about kind-based setup.**
-**TODO: local dev/debug setup**: docker-compose mongo and kafka
-
 ### Prerequisites
 
 We will be installing the tools that we'll need to use for getting our environment set up properly.
@@ -71,7 +68,6 @@ Once the project is up and running, you should be able to see 8 deployments and 
 `kubectl get pods` and `kubectl get services` - should both return `udaconnect-app`; `person-api`, `location-api`,
 `connection-api`, `connection-tracker`, `location-processor`; `mongo` and `kafka`.
 
-
 These pages should also load on your web browser:
 * `http://localhost:30001/docs` - OpenAPI Documentation for PersonAPI
 * `http://localhost:30002/docs` - OpenAPI Documentation for LocationAPI
@@ -93,24 +89,34 @@ authentication mechanism native for given provider. (E. g. Azure Active Domain i
 
 ## Development
 
-**TODO: switch to python-poetry**
-**TODO: switch to MongoDB**
-**TODO: docker-compose**
+### Environment variables
+The microservices expect the following environemnt variables to be present:
+```
+MONGO_CONNECTION_URI=mongodb://udaconnect_root:tinydogonaleash@localhost:27017/?authMechanism=DEFAULT
+MONGO_DB_NAME=geoconnections
 
-### New Services
-New services can be created inside of the `modules/` subfolder. You can choose to write something new with Flask, copy and rework the `modules/api` service into something new, or just create a very simple Python application.
+CONNECTION_TRACKER_HOST=localhost
+CONNECTION_TRACKER_PORT=8004
 
-As a reminder, each module should have:
-1. `Dockerfile`
-2. Its own corresponding DockerHub repository
-3. `requirements.txt` for `pip` packages
-4. `__init__.py`
+KAFKA_SERVER=localhost:9094
 
-### Docker Images
-`udaconnect-app` and `udaconnect-api` use docker images from `udacity/nd064-udaconnect-app` and `udacity/nd064-udaconnect-api`. To make changes to the application, build your own Docker image and push it to your own DockerHub repository. Replace the existing container registry path with your own.
+DEBUG=False
+```
+The values are set up to work with prepared docker-compose deployments. If you wish
+to connect to Kind-deployed services, please change the MongoDB connection url,
+Connection tracker port and Kafka server port accordingly.
+
+### Backend services
+All backend services are currently present in `modules/api` subfolder, use a single Python virtual environment
+and a single Docker image. The deployment commands (both in docker-compose and kind deployments) adjust the
+entrypoint command on startup to distinguish between individual microservices.
+
+For production, this should be fixed - each microservice should have its own virtual environment and a separate
+Dockerfile. We went for the single-folder approach only due to lack of time.
 
 ## Configs and Secrets
-In `deployment/db-secret.yaml`, the secret variable is `d293aW1zb3NlY3VyZQ==`. The value is simply encoded and not encrypted -- this is ***not*** secure! Anyone can decode it to see what it is.
+In `deployment/db-secret.yaml`, we have MongoDB connection string, which would typically contain credentials.
+This is base64-encoded and not encrypted -- this is ***not*** secure! Anyone can decode it to see what it is.
 ```bash
 # Decodes the value into plaintext
 echo "d293aW1zb3NlY3VyZQ==" | base64 -d
@@ -120,26 +126,21 @@ echo "hotdogsfordinner" | base64
 ```
 This is okay for development against an exclusively local environment and we want to keep the setup simple so that you can focus on the project tasks. However, in practice we should not commit our code with secret values into our repository. A CI/CD pipeline can help prevent that.
 
-## PostgreSQL Database
-The database uses a plug-in named PostGIS that supports geographic queries. It introduces `GEOMETRY` types and functions that we leverage to calculate distance between `ST_POINT`'s which represent latitude and longitude.
+## MongoDB & Kafka for local development
 
-_You may find it helpful to be able to connect to the database_. In general, most of the database complexity is abstracted from you. The Docker container in the starter should be configured with PostGIS. Seed scripts are provided to set up the database table and some rows.
-### Database Connection
-While the Kubernetes service for `postgres` is running (you can use `kubectl get services` to check), you can expose the service to connect locally:
-```bash
-kubectl port-forward svc/postgres 5432:5432
-```
-This will enable you to connect to the database at `localhost`. You should then be able to connect to `postgresql://localhost:5432/geoconnections`. This is assuming you use the built-in values in the deployment config map.
-### Software
-To manually connect to the database, you will need software compatible with PostgreSQL.
-* CLI users will find [psql](http://postgresguide.com/utilities/psql.html) to be the industry standard.
-* GUI users will find [pgAdmin](https://www.pgadmin.org/) to be a popular open-source solution.
+Backend microservices need MongoDB to store people-location data. It also uses Kafka to transfer new
+location data to DB. For local development, you will need to run these services.
+While it is possible to connect to Kubernetes/Kind deployed Kafka and Mongo, it is far from handy
+(mainly due to long startup times). We recommend running Mongo and Kafka using docker compose,
+for which we have Makefile targets.
 
-## Architecture Diagrams
-Your architecture diagram should focus on the services and how they talk to one another. For our project, we want the diagram in a `.png` format. Some popular free software and tools to create architecture diagrams:
-1. [Lucidchart](https://www.lucidchart.com/pages/)
-2. [Google Docs](docs.google.com) Drawings (In a Google Doc, _Insert_ - _Drawing_ - _+ New_)
-3. [Diagrams.net](https://app.diagrams.net/)
+**To bring MongoDB and Kafka up for local development, run the following command:**
+`make docker-run-mongo docker-run-kafka`
+
+It may take some time before the services boot up, due to Docker image download.
+
+### Database client
+To manually connect to the database, we recommend [MongoDB Compass](https://www.mongodb.com/products/compass)
 
 ## Tips
 * We can access a running Docker container using `kubectl exec -it <pod_id> sh`. From there, we can `curl` an endpoint to debug network issues.
