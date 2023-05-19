@@ -1,12 +1,12 @@
 version: "3.9"
 services:
   person_service:
-    image: udaconnect-api
+    image: person-api
     build:
       context: modules/api
+      dockerfile: person-api.dockerfile
     depends_on:
       - mongo
-    command: ["poetry" , "run", "uvicorn", "person_api:uda_app", "--host", "0.0.0.0", "--port", "5000"]
     ports:
       - "30001:5000"
     environment:
@@ -16,10 +16,10 @@ services:
       CONNECTION_TRACKER_PORT: 3004
       KAFKA_SERVER: kafka:9092
   location_service:
-    image: udaconnect-api
+    image: location-api
     build:
       context: modules/api
-    command: ["poetry" , "run", "uvicorn", "location_api:uda_app", "--host", "0.0.0.0", "--port", "5000"]
+      dockerfile: location-api.dockerfile
     ports:
       - "30002:5000"
     environment:
@@ -29,13 +29,13 @@ services:
       CONNECTION_TRACKER_PORT: 3004
       KAFKA_SERVER: kafka:9092
   location_processor:
-    image: udaconnect-api
+    image: location-processor
     build:
       context: modules/api
+      dockerfile: location-processor.dockerfile
     depends_on:
       - mongo
       - kafka
-    command: ["poetry" , "run", "python", "location_processor.py"]
     environment:
       MONGO_CONNECTION_URI: mongodb://udaconnect_root:tinydogonaleash@mongo:27017/?authMechanism=DEFAULT
       MONGO_DB_NAME: geoconnections
@@ -43,13 +43,13 @@ services:
       CONNECTION_TRACKER_PORT: 3004
       KAFKA_SERVER: kafka:9092
   connection_service:
-    image: udaconnect-api
+    image: connection-api
     build:
       context: modules/api
+      dockerfile: connection-api.dockerfile
     depends_on:
       - mongo
       - kafka
-    command: ["poetry" , "run", "uvicorn", "connection_api:uda_app", "--host", "0.0.0.0", "--port", "5000"]
     ports:
       - "30003:5000"
     environment:
@@ -59,12 +59,12 @@ services:
       CONNECTION_TRACKER_PORT: 3004
       KAFKA_SERVER: kafka:9092
   connection_tracker:
-    image: udaconnect-api
+    image: connection-tracker
     build:
       context: modules/api
+      dockerfile: connection-tracker.dockerfile
     depends_on:
       - mongo
-    command: ["poetry" , "run", "python", "connection_tracker_api.py"]
     ports:
       - "30004:5000"
     environment:

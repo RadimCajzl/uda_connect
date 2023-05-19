@@ -6,10 +6,10 @@ import fastapi
 import fastapi.middleware.cors
 import pymongo.collection
 
-import app.config
-import app.udaconnect.models
-from app.udaconnect.connection_aggregator import ConnectionAggregator
-from base_app import create_base_app, location_collection, person_collection
+import base.models
+from base.base_app import (create_base_app, location_collection,
+                           person_collection)
+from connection_api.connection_aggregator import ConnectionAggregator
 
 uda_app = create_base_app()
 
@@ -17,9 +17,9 @@ uda_app = create_base_app()
 # Auxiliary variables to count for number of connection in last X sec.
 CONNECTION_COUNTER_RESET_INTERVAL = dt.timedelta(seconds=5)
 _connection_counters: Dict[
-    Literal["current", "previous"], app.udaconnect.models.ConnectionCountInterval | None
+    Literal["current", "previous"], base.models.ConnectionCountInterval | None
 ] = {
-    "current": app.udaconnect.models.ConnectionCountInterval(
+    "current": base.models.ConnectionCountInterval(
         count=0, start=dt.datetime.now(), duration=CONNECTION_COUNTER_RESET_INTERVAL
     ),
     "previous": None,
@@ -38,14 +38,14 @@ def _swap_connection_intervals_if_needed() -> None:
         < dt.datetime.now() - _connection_counters["current"].duration
     ):
         _connection_counters["previous"] = _connection_counters["current"]
-        _connection_counters["current"] = app.udaconnect.models.ConnectionCountInterval(
+        _connection_counters["current"] = base.models.ConnectionCountInterval(
             count=0, start=dt.datetime.now(), duration=CONNECTION_COUNTER_RESET_INTERVAL
         )
 
 
 @uda_app.get(
     "/persons/{person_id}/connection",
-    response_model=List[app.udaconnect.models.Connection],
+    response_model=List[base.models.Connection],
 )
 async def find_contacts_for_person(
     person_id: int,
@@ -58,7 +58,7 @@ async def find_contacts_for_person(
     person_collection: pymongo.collection.Collection = fastapi.Depends(
         person_collection
     ),
-) -> List[app.udaconnect.models.Connection]:
+) -> List[base.models.Connection]:
     global _connection_counters
     if _connection_counters["current"] is None:
         raise ValueError("Connection counter 'current' must not be None.")
@@ -76,10 +76,10 @@ async def find_contacts_for_person(
     )
 
 
-@uda_app.get("/metrics", response_model=app.udaconnect.models.ApiMetrics)
-async def metrics() -> app.udaconnect.models.ApiMetrics:
+@uda_app.get("/metrics", response_model=base.models.ApiMetrics)
+async def metrics() -> base.models.ApiMetrics:
     """Returns statistics with recent connections."""
     global _connection_counters
-    return app.udaconnect.models.ApiMetrics(
+    return base.models.ApiMetrics(
         status="healthy", connection_count_intervals=_connection_counters
     )

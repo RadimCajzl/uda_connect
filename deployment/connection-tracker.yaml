@@ -30,14 +30,9 @@ spec:
         service: connection-tracker
     spec:
       containers:
-      - image: docker.io/library/udaconnect-api:latest
+      - image: docker.io/library/connection-tracker:latest
         name: connection-tracker
         imagePullPolicy: Always
-        command:
-        - "poetry"
-        - "run"
-        - "python"
-        - "connection_tracker_api.py"
         env:
         - name: MONGO_CONNECTION_URI
           valueFrom:

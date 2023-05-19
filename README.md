@@ -1,4 +1,8 @@
 # UdaConnect
+
+This repository was created as part of Udacity [Cloud Native Application Architecture](https://www.udacity.com/course/cloud-native-application-architecture-nanodegree--nd064) nanodegree.
+It is based on [project-starter files created by Udacity](https://github.com/udacity/nd064-c2-message-passing-projects-starter).
+
 ## Overview
 ### Background
 Conferences and conventions are hotspots for making connections. Professionals in attendance often share the same interests and can make valuable business and personal connections with one another. At the same time, these events draw a large crowd and it's often hard to make these connections in the midst of all of these events' excitement and energy. To help attendees make connections, we are building the infrastructure for a service that can inform attendees if they have attended the same booths and presentations at an event.
@@ -108,11 +112,12 @@ Connection tracker port and Kafka server port accordingly.
 
 ### Backend services
 All backend services are currently present in `modules/api` subfolder, use a single Python virtual environment
-and a single Docker image. The deployment commands (both in docker-compose and kind deployments) adjust the
-entrypoint command on startup to distinguish between individual microservices.
+and a multiple Docker images. Each service has it's own Dockerfile, which copies relevant source code parts
+from the single virtual environment
 
-For production, this should be fixed - each microservice should have its own virtual environment and a separate
-Dockerfile. We went for the single-folder approach only due to lack of time.
+For production, this should be fixed - each microservice should have its own virtual environment, possibly
+even separate repository plus one shared Python package with the base app and gRPC service definitions.
+We went for the single-folder approach only due to lack of time.
 
 ## Configs and Secrets
 In `deployment/db-secret.yaml`, we have MongoDB connection string, which would typically contain credentials.

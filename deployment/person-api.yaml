@@ -31,18 +31,9 @@ spec:
         service: person-api
     spec:
       containers:
-      - image: docker.io/library/udaconnect-api:latest
+      - image: docker.io/library/person-api:latest
         name: person-api
         imagePullPolicy: Always
-        command:
-        - "poetry"
-        - "run"
-        - "uvicorn"
-        - "person_api:uda_app"
-        - "--host"
-        - "0.0.0.0"
-        - "--port"
-        - "5000"
         env:
         - name: MONGO_CONNECTION_URI
           valueFrom:

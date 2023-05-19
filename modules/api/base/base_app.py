@@ -2,8 +2,7 @@ import fastapi
 import fastapi.middleware.cors
 import pymongo.collection
 
-import app.config
-import app.udaconnect.models
+import base.config
 
 
 def create_base_app() -> fastapi.FastAPI:
@@ -34,15 +33,15 @@ def create_base_app() -> fastapi.FastAPI:
 
 async def person_collection() -> pymongo.collection.Collection:
     mongo_client: pymongo.MongoClient = pymongo.MongoClient(
-        app.config.MONGO_CONNECTION_URI
+        base.config.MONGO_CONNECTION_URI
     )
-    mongo_db = mongo_client[app.config.MONGO_DB_NAME]
+    mongo_db = mongo_client[base.config.MONGO_DB_NAME]
     return mongo_db["person"]
 
 
 async def location_collection() -> pymongo.collection.Collection:
     mongo_client: pymongo.MongoClient = pymongo.MongoClient(
-        app.config.MONGO_CONNECTION_URI
+        base.config.MONGO_CONNECTION_URI
     )
-    mongo_db = mongo_client[app.config.MONGO_DB_NAME]
+    mongo_db = mongo_client[base.config.MONGO_DB_NAME]
     return mongo_db["location"]

@@ -21,7 +21,11 @@ docker-run-kafka:
 
 kind-udaconnect: docker-build kind-udaconnect-clean
 	# push docker images into kind cluster
-	kind load docker-image udaconnect-api:latest
+	kind load docker-image person-api:latest
+	kind load docker-image location-api:latest
+	kind load docker-image location-processor:latest
+	kind load docker-image connection-api:latest
+	kind load docker-image connection-tracker:latest
 	kind load docker-image udaconnect-app:latest
 
 	## apply kubernetes manifests
@@ -35,7 +39,7 @@ kind-udaconnect: docker-build kind-udaconnect-clean
 	
 	# Wait for Kafka to start
 	# (microservices require Kafka on start-time already.)
-	kubectl wait deployment kafka --for condition=Available=True --timeout=300s
+	kubectl wait deployment kafka --for condition=Available=True --timeout=900s
 
 	# Set up the service and deployment for the API
 	#  - replace image pull policy. For kind deployments, we already loaded

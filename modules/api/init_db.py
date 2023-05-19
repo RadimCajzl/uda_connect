@@ -5,8 +5,8 @@ import pydantic
 import pymongo
 import pymongo.errors
 
-import app.config as uda_config
-import app.udaconnect.models as uda_models
+import base.config as uda_config
+import base.models as uda_models
 
 print("Initializing UdaConnect MongoDB.")
 

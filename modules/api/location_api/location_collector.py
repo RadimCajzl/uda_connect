@@ -1,13 +1,13 @@
 from kafka import KafkaProducer  # type: ignore
 
-import app.config
-from app.udaconnect.models import Location
+import base.config
+from base.models import Location
 
 
 class LocationCollector:
     def __init__(self) -> None:
-        self.kafka_producer = KafkaProducer(bootstrap_servers=app.config.KAFKA_SERVER)
-        self.kafka_topic = app.config.KAFKA_TOPIC
+        self.kafka_producer = KafkaProducer(bootstrap_servers=base.config.KAFKA_SERVER)
+        self.kafka_topic = base.config.KAFKA_TOPIC
 
     def _send(self, message: bytes) -> None:
         self.kafka_producer.send(self.kafka_topic, message)

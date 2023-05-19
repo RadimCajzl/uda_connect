@@ -5,7 +5,7 @@ from typing import Dict, Literal, Tuple
 
 from pydantic import BaseModel
 
-import connection_tracker_api.connection_pb2
+import connection_tracker_grpc.connection_pb2
 
 
 class Person(BaseModel):
@@ -15,7 +15,7 @@ class Person(BaseModel):
     company_name: str
 
     def to_grpc(self):
-        return connection_tracker_api.connection_pb2.Person(
+        return connection_tracker_grpc.connection_pb2.Person(
             id=self.id,
             first_name=self.first_name,
             last_name=self.last_name,
@@ -39,7 +39,7 @@ class Location(BaseModel):
     creation_time: dt.datetime
 
     def to_grpc(self):
-        return connection_tracker_api.connection_pb2.Location(
+        return connection_tracker_grpc.connection_pb2.Location(
             id=self.id,
             person_id=self.person_id,
             coordinates=list(self.coordinates),
@@ -61,7 +61,7 @@ class Connection(BaseModel):
     person: Person
 
     def to_grpc(self):
-        return connection_tracker_api.connection_pb2.Connection(
+        return connection_tracker_grpc.connection_pb2.Connection(
             location=self.location.to_grpc(), person=self.person.to_grpc()
         )
 

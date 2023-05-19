@@ -4,10 +4,9 @@ import fastapi
 import fastapi.middleware.cors
 import pymongo.collection
 
-import app.config
-import app.udaconnect.models
-from app.udaconnect.person_service import PersonService
-from base_app import create_base_app, person_collection
+import base.models
+from base.base_app import create_base_app, person_collection
+from person_api.person_service import PersonService
 
 uda_app = create_base_app()
 
@@ -29,22 +28,22 @@ uda_app.add_middleware(
 )
 
 
-@uda_app.post("/persons", response_model=app.udaconnect.models.Person)
+@uda_app.post("/persons", response_model=base.models.Person)
 async def create_person(
-    request_body: app.udaconnect.models.Person,
+    request_body: base.models.Person,
     person_collection: pymongo.collection.Collection = fastapi.Depends(
         person_collection
     ),
-) -> app.udaconnect.models.Person:
+) -> base.models.Person:
     return PersonService(person_collection=person_collection).create(request_body)
 
 
-@uda_app.get("/persons", response_model=List[app.udaconnect.models.Person])
+@uda_app.get("/persons", response_model=List[base.models.Person])
 async def get_all_people(
     person_collection: pymongo.collection.Collection = fastapi.Depends(
         person_collection
     ),
-) -> List[app.udaconnect.models.Person]:
+) -> List[base.models.Person]:
     return PersonService(person_collection=person_collection).retrieve_all()
 
 
@@ -54,7 +53,7 @@ async def get_one_person(
     person_collection: pymongo.collection.Collection = fastapi.Depends(
         person_collection
     ),
-) -> app.udaconnect.models.Person:
+) -> base.models.Person:
     return PersonService(person_collection=person_collection).retrieve(
         person_id=person_id
     )

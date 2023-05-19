@@ -15,22 +15,24 @@ from concurrent import futures
 import grpc
 import pymongo
 
-import app.config
-import app.udaconnect.models
-import connection_tracker_api.connection_pb2
-import connection_tracker_api.connection_pb2_grpc
-from app.udaconnect.connection_tracker import ConnectionTracker
+import base.config
+import base.models
+import connection_tracker_grpc.connection_pb2
+import connection_tracker_grpc.connection_pb2_grpc
+from connection_tracker.connection_tracker import ConnectionTracker
 
-mongo_client: pymongo.MongoClient = pymongo.MongoClient(app.config.MONGO_CONNECTION_URI)
-mongo_db = mongo_client[app.config.MONGO_DB_NAME]
+mongo_client: pymongo.MongoClient = pymongo.MongoClient(
+    base.config.MONGO_CONNECTION_URI
+)
+mongo_db = mongo_client[base.config.MONGO_DB_NAME]
 
 
 class ConnectionTrackerAPI(
-    connection_tracker_api.connection_pb2_grpc.ConnectionTrackerServicer
+    connection_tracker_grpc.connection_pb2_grpc.ConnectionTrackerServicer
 ):
     def Get(self, request, context):
         ## Parse input
-        source_location = app.udaconnect.models.Location.from_grpc(request.location)
+        source_location = base.models.Location.from_grpc(request.location)
         start_date = dt.datetime.fromisoformat(request.start_date)
         end_date = dt.datetime.fromisoformat(request.end_date)
         meters = int(request.meters)
@@ -56,12 +58,12 @@ class ConnectionTrackerAPI(
 
 if __name__ == "__main__":
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))
-    connection_tracker_api.connection_pb2_grpc.add_ConnectionTrackerServicer_to_server(
+    connection_tracker_grpc.connection_pb2_grpc.add_ConnectionTrackerServicer_to_server(
         ConnectionTrackerAPI(), server
     )
 
-    print(f"Server starting on port {app.config.CONNECTION_TRACKER_PORT}.")
-    server.add_insecure_port(f"[::]:{app.config.CONNECTION_TRACKER_PORT}")
+    print(f"Server starting on port {base.config.CONNECTION_TRACKER_PORT}.")
+    server.add_insecure_port(f"[::]:{base.config.CONNECTION_TRACKER_PORT}")
     server.start()
     # Keep thread alive
     try:
