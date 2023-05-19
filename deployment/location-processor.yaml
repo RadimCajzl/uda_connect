@@ -15,14 +15,9 @@ spec:
         service: location-processor
     spec:
       containers:
-      - image: docker.io/library/udaconnect-api:latest
+      - image: docker.io/library/location-processor:latest
         name: location-processor
         imagePullPolicy: Always
-        command:
-        - "poetry"
-        - "run"
-        - "python"
-        - "location_processor.py"
         env:
         - name: MONGO_CONNECTION_URI
           valueFrom:
