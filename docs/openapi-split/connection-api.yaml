@@ -1,100 +1,11 @@
 openapi: 3.0.2
 info:
-  title: UdaConnect services
+  title: FastAPI
   version: 0.1.0
 paths:
-  /persons:
-    servers:
-     - url: http://localhost:30001
-    get:
-      summary: Get All People
-      operationId: get_all_people_persons_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                title: Response Get All People Persons Get
-                type: array
-                items:
-                  $ref: '#/components/schemas/Person'
-    post:
-      summary: Create Person
-      operationId: create_person_persons_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Person'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Person'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /persons/{person_id}:
-    servers:
-     - url: http://localhost:30001
-    get:
-      summary: Get One Person
-      operationId: get_one_person_persons__person_id__get
-      parameters:
-        - required: true
-          schema:
-            title: Person Id
-            type: integer
-          name: person_id
-          in: path
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Person'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /locations:
-    servers:
-     - url: http://localhost:30002
-    post:
-      summary: Create Location
-      operationId: create_location_locations_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Location'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Location'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
   /persons/{person_id}/connection:
     servers:
-     - url: http://localhost:30003
+     - url: http://localhost:30003/
     get:
       summary: Find Contacts For Person
       operationId: find_contacts_for_person_persons__person_id__connection_get
@@ -146,7 +57,7 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /metrics:
     servers:
-     - url: http://localhost:30003
+     - url: http://localhost:30003/
     get:
       summary: Metrics
       description: Returns statistics with recent connections.
@@ -160,15 +71,6 @@ paths:
                 $ref: '#/components/schemas/ApiMetrics'
 components:
   schemas:
-    HTTPValidationError:
-      title: HTTPValidationError
-      type: object
-      properties:
-        detail:
-          title: Detail
-          type: array
-          items:
-            $ref: '#/components/schemas/ValidationError'
     ApiMetrics:
       title: ApiMetrics
       required:
@@ -219,27 +121,15 @@ components:
           title: Duration
           type: number
           format: time-delta
-    Person:
-      title: Person
-      required:
-        - id
-        - first_name
-        - last_name
-        - company_name
+    HTTPValidationError:
+      title: HTTPValidationError
       type: object
       properties:
-        id:
-          title: Id
-          type: integer
-        first_name:
-          title: First Name
-          type: string
-        last_name:
-          title: Last Name
-          type: string
-        company_name:
-          title: Company Name
-          type: string
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
     Location:
       title: Location
       required:
@@ -266,6 +156,27 @@ components:
           title: Creation Time
           type: string
           format: date-time
+    Person:
+      title: Person
+      required:
+        - id
+        - first_name
+        - last_name
+        - company_name
+      type: object
+      properties:
+        id:
+          title: Id
+          type: integer
+        first_name:
+          title: First Name
+          type: string
+        last_name:
+          title: Last Name
+          type: string
+        company_name:
+          title: Company Name
+          type: string
     ValidationError:
       title: ValidationError
       required:
