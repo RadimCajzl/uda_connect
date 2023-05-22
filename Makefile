@@ -21,12 +21,12 @@ docker-run-kafka:
 
 kind-udaconnect: docker-build kind-udaconnect-clean
 	# push docker images into kind cluster
-	kind load docker-image person-api:latest
-	kind load docker-image location-api:latest
-	kind load docker-image location-processor:latest
-	kind load docker-image connection-api:latest
-	kind load docker-image connection-tracker:latest
-	kind load docker-image udaconnect-app:latest
+	kind load docker-image local.docker.repo/radimcajzl/person-api:latest
+	kind load docker-image local.docker.repo/radimcajzl/location-api:latest
+	kind load docker-image local.docker.repo/radimcajzl/location-processor:latest
+	kind load docker-image local.docker.repo/radimcajzl/connection-api:latest
+	kind load docker-image local.docker.repo/radimcajzl/connection-tracker:latest
+	kind load docker-image local.docker.repo/radimcajzl/udaconnect-app:latest
 
 	## apply kubernetes manifests
 	# DB-config for pods

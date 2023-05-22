@@ -30,7 +30,11 @@ spec:
         service: connection-tracker
     spec:
       containers:
-      - image: docker.io/library/connection-tracker:latest
+      # Remark: This repository does not exist online, but the
+      # docker compose builds images tagged with it locally.
+      # This is to make it absolutely clear I am using my own
+      # docker images and not the pre-built ones.
+      - image: local.docker.repo/radimcajzl/connection-tracker:latest
         name: connection-tracker
         imagePullPolicy: Always
         env:
