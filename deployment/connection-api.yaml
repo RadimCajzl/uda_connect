@@ -31,7 +31,11 @@ spec:
         service: connection-api
     spec:
       containers:
-      - image: docker.io/library/connection-api:latest
+      # Remark: This repository does not exist online, but the
+      # docker compose builds images tagged with it locally.
+      # This is to make it absolutely clear I am using my own
+      # docker images and not the pre-built ones.
+      - image: local.docker.repo/radimcajzl/connection-api:latest
         name: connection-api
         imagePullPolicy: Always
         env:
