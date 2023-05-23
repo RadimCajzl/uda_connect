@@ -19,14 +19,23 @@ docker-run-mongo:
 docker-run-kafka:
 	docker compose up -d kafka
 
+docker-push: docker-build
+	docker push radimcajzl/udaconnect-person-api:latest
+	docker push radimcajzl/udaconnect-location-api:latest
+	docker push radimcajzl/udaconnect-location-processor:latest
+	docker push radimcajzl/udaconnect-connection-api:latest
+	docker push radimcajzl/udaconnect-connection-tracker:latest
+	docker push radimcajzl/udaconnect-udaconnect-app:latest
+
 kind-udaconnect: docker-build kind-udaconnect-clean
-	# push docker images into kind cluster
-	kind load docker-image local.docker.repo/radimcajzl/person-api:latest
-	kind load docker-image local.docker.repo/radimcajzl/location-api:latest
-	kind load docker-image local.docker.repo/radimcajzl/location-processor:latest
-	kind load docker-image local.docker.repo/radimcajzl/connection-api:latest
-	kind load docker-image local.docker.repo/radimcajzl/connection-tracker:latest
-	kind load docker-image local.docker.repo/radimcajzl/udaconnect-app:latest
+	# # push docker images into kind cluster
+	# # (To be used if you wish to use locally built images without upload to DockerHub.)
+	# kind load docker-image radimcajzl/udaconnect-person-api:latest
+	# kind load docker-image radimcajzl/udaconnect-location-api:latest
+	# kind load docker-image radimcajzl/udaconnect-location-processor:latest
+	# kind load docker-image radimcajzl/udaconnect-connection-api:latest
+	# kind load docker-image radimcajzl/udaconnect-connection-tracker:latest
+	# kind load docker-image radimcajzl/udaconnect-udaconnect-app:latest
 
 	## apply kubernetes manifests
 	# DB-config for pods
@@ -53,7 +62,7 @@ kind-udaconnect: docker-build kind-udaconnect-clean
 		echo ; \
 		echo deploying $$manifest.; \
 		cat deployment/$$manifest.yaml | \
-			sed 's/imagePullPolicy: Always/imagePullPolicy: Never/' | \
+			# sed 's/imagePullPolicy: Always/imagePullPolicy: Never/' | \
 			kubectl apply --wait=true -f -; \
 	done
 

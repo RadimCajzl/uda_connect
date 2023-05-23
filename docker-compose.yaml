@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   person_service:
-    image: local.docker.repo/radimcajzl/person-api
+    image: radimcajzl/udaconnect-person-api
     build:
       context: modules/api
       dockerfile: person-api.dockerfile
@@ -16,7 +16,7 @@ services:
       CONNECTION_TRACKER_PORT: 3004
       KAFKA_SERVER: kafka:9092
   location_service:
-    image: local.docker.repo/radimcajzl/location-api
+    image: radimcajzl/udaconnect-location-api
     build:
       context: modules/api
       dockerfile: location-api.dockerfile
@@ -29,7 +29,7 @@ services:
       CONNECTION_TRACKER_PORT: 3004
       KAFKA_SERVER: kafka:9092
   location_processor:
-    image: local.docker.repo/radimcajzl/location-processor
+    image: radimcajzl/udaconnect-location-processor
     build:
       context: modules/api
       dockerfile: location-processor.dockerfile
@@ -43,7 +43,7 @@ services:
       CONNECTION_TRACKER_PORT: 3004
       KAFKA_SERVER: kafka:9092
   connection_service:
-    image: local.docker.repo/radimcajzl/connection-api
+    image: radimcajzl/udaconnect-connection-api
     build:
       context: modules/api
       dockerfile: connection-api.dockerfile
@@ -59,7 +59,7 @@ services:
       CONNECTION_TRACKER_PORT: 3004
       KAFKA_SERVER: kafka:9092
   connection_tracker:
-    image: local.docker.repo/radimcajzl/connection-tracker
+    image: radimcajzl/udaconnect-connection-tracker
     build:
       context: modules/api
       dockerfile: connection-tracker.dockerfile
@@ -74,7 +74,7 @@ services:
       CONNECTION_TRACKER_PORT: 3004
       KAFKA_SERVER: kafka:9092
   frontend:
-    image: local.docker.repo/radimcajzl/udaconnect-app
+    image: radimcajzl/udaconnect-udaconnect-app
     build:
       context: modules/frontend
     environment:
